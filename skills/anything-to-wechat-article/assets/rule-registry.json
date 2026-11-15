@@ -10,7 +10,7 @@
     {
       "id": "S01",
       "level": "L0",
-      "title": "禁止 style 标签",
+      "title": "样式全部内联在元素上",
       "source": {
         "type": "platform_fact",
         "evidence": "微信编辑器过滤 style 标签",
@@ -31,7 +31,7 @@
     {
       "id": "S02",
       "level": "L0",
-      "title": "禁止 class 属性",
+      "title": "样式只走 style 属性",
       "source": {
         "type": "platform_fact",
         "evidence": "微信编辑器过滤 class",
@@ -52,7 +52,7 @@
     {
       "id": "S03",
       "level": "L0",
-      "title": "禁用 section/figure/figcaption/script 等标签",
+      "title": "只使用微信编辑器保留的标签",
       "source": {
         "type": "platform_fact",
         "evidence": "微信粘贴后塌陷或过滤",
@@ -73,7 +73,7 @@
     {
       "id": "S04",
       "level": "L1",
-      "title": "标签白名单",
+      "title": "标签限于白名单",
       "source": {
         "type": "engineering_contract",
         "evidence": "标签白名单",
@@ -94,7 +94,7 @@
     {
       "id": "S05",
       "level": "L0",
-      "title": "不得引用外部资源",
+      "title": "资源全部内嵌",
       "source": {
         "type": "platform_fact",
         "evidence": "外链字体/JS/图片在公众号不可靠",
@@ -115,7 +115,7 @@
     {
       "id": "S06",
       "level": "L1",
-      "title": "内联样式数下限",
+      "title": "组件级内联样式达到下限",
       "source": {
         "type": "engineering_contract",
         "evidence": "内联样式密度要求",
@@ -136,7 +136,7 @@
     {
       "id": "S07",
       "level": "L1",
-      "title": "至少一张配图",
+      "title": "至少一张自制信息图",
       "source": {
         "type": "engineering_contract",
         "evidence": "用户确认 4 图全套为默认交付",
@@ -157,7 +157,7 @@
     {
       "id": "S08",
       "level": "L1",
-      "title": "图片数与 base64 数一致",
+      "title": "图片数与内嵌数一致",
       "source": {
         "type": "engineering_contract",
         "evidence": "图片双轨约定",
@@ -178,7 +178,7 @@
     {
       "id": "S09",
       "level": "L1",
-      "title": "图片数符合预期",
+      "title": "图片数与 figures 清单一致",
       "source": {
         "type": "engineering_contract",
         "evidence": "IR figures 清单",
@@ -199,7 +199,7 @@
     {
       "id": "S10",
       "level": "L1",
-      "title": "图片 width:100%",
+      "title": "每张图宽度自适应",
       "source": {
         "type": "engineering_contract",
         "evidence": "移动端适配",
@@ -241,7 +241,7 @@
     {
       "id": "S12",
       "level": "L1",
-      "title": "无未替换占位符",
+      "title": "占位符全部替换",
       "source": {
         "type": "engineering_contract",
         "evidence": "模板渲染完整性",
@@ -262,7 +262,7 @@
     {
       "id": "S13",
       "level": "L1",
-      "title": "必须有资料来源与整理说明",
+      "title": "文末有来源说明",
       "source": {
         "type": "engineering_contract",
         "evidence": "来源可追溯约定",
@@ -283,7 +283,7 @@
     {
       "id": "S14",
       "level": "L1",
-      "title": "组件级内联覆盖率",
+      "title": "组件内联覆盖率达到下限",
       "source": {
         "type": "engineering_contract",
         "evidence": "组件内联覆盖率要求",
@@ -304,7 +304,7 @@
     {
       "id": "S15",
       "level": "L1",
-      "title": "段落密度下限",
+      "title": "段落密度达标",
       "source": {
         "type": "engineering_contract",
         "evidence": "禁止用 br 堆排版",
@@ -325,7 +325,7 @@
     {
       "id": "S16",
       "level": "L1",
-      "title": "每张图片必须有 alt",
+      "title": "每张图带 alt 文本",
       "source": {
         "type": "engineering_contract",
         "evidence": "无障碍与图注",
@@ -346,7 +346,7 @@
     {
       "id": "S17",
       "level": "L1",
-      "title": "配图为 2x 高清 PNG",
+      "title": "配图按 2 倍输出",
       "source": {
         "type": "engineering_contract",
         "evidence": "render_figures.py --scale 2",
@@ -367,7 +367,7 @@
     {
       "id": "S18",
       "level": "L1",
-      "title": "每张图后必须有图注",
+      "title": "每张图后有图注",
       "source": {
         "type": "engineering_contract",
         "evidence": "图注写清图在回答什么",
@@ -388,7 +388,7 @@
     {
       "id": "S19",
       "level": "L1",
-      "title": "禁止连续 br",
+      "title": "段落用 p 分隔",
       "source": {
         "type": "engineering_contract",
         "evidence": "伪段落检测",
@@ -409,7 +409,7 @@
     {
       "id": "S20",
       "level": "L1",
-      "title": "正文不得出现内部流程术语",
+      "title": "正文用读者语言，不出现内部流程词",
       "source": {
         "type": "engineering_contract",
         "evidence": "外部产物 B 正文出现「拍板」",
@@ -430,7 +430,7 @@
     {
       "id": "S21",
       "level": "L1",
-      "title": "正文中文字符下限",
+      "title": "正文长度达标",
       "source": {
         "type": "engineering_contract",
         "evidence": "防止 IR 漏 sections",
@@ -451,7 +451,7 @@
     {
       "id": "C01",
       "level": "L2",
-      "title": "作者/讲者履历引子",
+      "title": "开头有作者或讲者的履历",
       "source": {
         "type": "user_feedback",
         "evidence": "用户反馈：演讲类文章应介绍讲者履历",
@@ -482,7 +482,7 @@
     {
       "id": "C02",
       "level": "L2",
-      "title": "外文术语中文简注",
+      "title": "外文术语带中文简注",
       "source": {
         "type": "user_feedback",
         "evidence": "用户反馈：brownfield 有译名而 greenfield 没有",
@@ -510,7 +510,7 @@
     {
       "id": "C03",
       "level": "L2",
-      "title": "文末来源说明形态",
+      "title": "文末来源说明简洁可溯源",
       "source": {
         "type": "user_feedback",
         "evidence": "用户反馈：面向外部读者要简洁",
@@ -536,7 +536,7 @@
     {
       "id": "C04",
       "level": "L2",
-      "title": "Markdown 过程附录",
+      "title": "Markdown 带整理过程附录",
       "source": {
         "type": "user_feedback",
         "evidence": "用户反馈：详细过程放 md 便于回溯",
@@ -563,7 +563,7 @@
     {
       "id": "C05",
       "level": "L2",
-      "title": "信息卡不泄露内部口径",
+      "title": "信息卡只放读者需要的信息",
       "source": {
         "type": "user_feedback",
         "evidence": "发现信息卡写「口径」",
@@ -589,7 +589,7 @@
     {
       "id": "S22",
       "level": "L1",
-      "title": "相邻两图之间必须有正文过渡",
+      "title": "相邻两图之间有一段正文",
       "source": {
         "type": "user_feedback",
         "evidence": "两图连排导致信息密集、读者直接滑过；要求两图之间附文字",
@@ -615,7 +615,7 @@
     {
       "id": "F01",
       "level": "L1",
-      "title": "图里不用代词作主语",
+      "title": "图里写清主体，不用代词",
       "source": {
         "type": "user_feedback",
         "evidence": "图内标题写「她团队禁掉了…」，单独转发时没有指代对象；要求换成姓名",
@@ -636,6 +636,83 @@
         "图内用代词",
         "她团队",
         "讲者团队即可"
+      ],
+      "fix": "把「她/他」换成具体人名、团队名或产品名；引语确需保留原话时，在图表 HTML 里写 <!-- allow-pronoun: 理由 -->"
+    },
+    {
+      "id": "S23",
+      "level": "L1",
+      "title": "图注不复述它前面的小标题",
+      "source": {
+        "type": "user_feedback",
+        "evidence": "图注与小标题说同一句话，同屏两个命名者",
+        "verified_at": "2026-11-15"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 90,
+      "waiver_allowed": true,
+      "provisional": false,
+      "conflict_keywords": [
+        "图注复述标题",
+        "图注写标题原话"
+      ]
+    },
+    {
+      "id": "S24",
+      "level": "L1",
+      "title": "区块不超过两处且不嵌套",
+      "source": {
+        "type": "user_feedback",
+        "evidence": "要求给一组内容加框区分上下文；框一旦滥用就会变成整节外框",
+        "verified_at": "2026-11-15"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 90,
+      "waiver_allowed": true,
+      "provisional": false,
+      "conflict_keywords": [
+        "整节套外框",
+        "异色背景包章节"
+      ]
+    },
+    {
+      "id": "S25",
+      "level": "L1",
+      "title": "Markdown 归档包含全部图注",
+      "fix": "检查 build_article.py 的 Markdown 分支是否处理了这个块类型（aside 必须递归）",
+      "source": {
+        "type": "self_audit",
+        "evidence": "aside 上线后 HTML 正常、article.md 里图 4 整块丢失，两条出口不一致",
+        "verified_at": "2026-11-15"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 180,
+      "waiver_allowed": false,
+      "provisional": false,
+      "conflict_keywords": [
+        "只出 HTML 不出 Markdown",
+        "归档可以省图"
       ]
     }
   ],

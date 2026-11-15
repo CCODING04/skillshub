@@ -35,6 +35,9 @@ FIX = {
     "S20": "删掉正文里的内部流程词（S0-A / feasibility / base64 / content.json 等）",
     "S21": "正文过短，检查 IR 是否漏了 sections",
     "S22": "两张图挨在一起了：在它们之间补一段正文（图注不算过渡），或删掉信息重复的那张",
+    "S23": "图注换个说法：写出这张图在说什么，命名交给它上面的小标题",
+    "S24": "区块最多两处且不能套叠：只把确实需要分开的一组内容收进框",
+    "S25": "Markdown 归档缺图：检查 build_article.py 的 Markdown 分支是否漏了某个块类型（aside 要递归）",
     "C01": "开头补作者/讲者的公开履历引子，并明确标注与正文来源分开",
     "C02": "外文术语首次出现补中文简注，如 PR（代码合并请求）、lint（静态检查规则）",
     "C03": "文末来源说明保持 2–6 条，含来源标识与书面化/非逐字声明",
@@ -85,16 +88,31 @@ def main():
         style_id=theme_id,
     )
 
-    # --- N6: theme schema / placeholders / contrast gate ---
+    # --- meta gates: theme schema, and "rules.md matches the registry" ---
     import subprocess as _sp
-    theme_check = {"valid": True, "note": "skipped"}
-    checker = Path(__file__).with_name("check_themes.py")
-    if checker.exists():
-        _r = _sp.run([sys.executable, str(checker), "--skill-root", str(Path(__file__).resolve().parent.parent),
-                      "--out", str(out_dir / "theme-report.json")], capture_output=True, text=True)
-        theme_check = {"valid": _r.returncode == 0, "report": str(out_dir / "theme-report.json")}
+    skill_root = Path(__file__).resolve().parent.parent
+
+    def run_meta(script_name, *argv, report_name):
+        """Run a sibling script as a gate item. Missing script = skipped (not a failure)."""
+        script = Path(__file__).with_name(script_name)
+        if not script.exists():
+            return {"valid": True, "note": "skipped (script absent)"}
+        report = out_dir / report_name if report_name else None
+        cmd = [sys.executable, str(script), *argv]
+        if report_name:
+            cmd += ["--out", str(report)]
+        _r = _sp.run(cmd, capture_output=True, text=True)
+        item = {"valid": _r.returncode == 0, "report": str(report) if report else None}
         if _r.returncode != 0:
-            print("THEME CHECK FAILED (see theme-report.json)", file=sys.stderr)
+            item["output"] = (_r.stdout + _r.stderr).strip()[-800:]
+            print(f"{script_name} FAILED", file=sys.stderr)
+        return item
+
+    theme_check = run_meta("check_themes.py", "--skill-root", str(skill_root),
+                           report_name="theme-report.json")
+    # The rule list is generated from assets/rule-registry.json. If someone edits one
+    # without the other, readers get a stale spec and CI would silently pass.
+    rules_doc_check = run_meta("render_rules_doc.py", "--check", report_name=None)
 
     # --- rule governance: detect conflicts BEFORE deciding pass/fail ---
     task_meta_path = args.task_meta
@@ -127,6 +145,7 @@ def main():
             print("确认文件必须由人填写 approved_by 与 decision；模型不得代填", file=sys.stderr)
             return 3
 
+    meta_ok = theme_check["valid"] and rules_doc_check["valid"]
     needs = bool(gov and gov.get("needs_decision"))
     conflicts = (gov or {}).get("conflicts", [])
     governance = {
@@ -143,6 +162,7 @@ def main():
         ci = {
             "gate": "NEEDS_DECISION", "strict": not args.no_strict,
             "theme_check": theme_check,
+            "rules_doc_check": rules_doc_check,
             "article": str(html.resolve()), "governance": governance,
             "conflict_report": str(out_dir / "conflict-report.json"),
             "lint_gate": report["summary"]["gate"],
@@ -158,18 +178,31 @@ def main():
         return 2
 
     failed = [r for r in report.get("rules", []) if not r["passed"]]
+    # 注册表比 lint 报告多出渲染期规则（F*），它们在出图前就拦下了，
+    # 不会出现在 lint-report 里。这里显式写出差额，免得读报告的人以为漏了一条。
+    try:
+        reg_ids = [r["id"] for r in json.loads(registry.read_text(encoding="utf-8"))["rules"]]
+    except Exception:
+        reg_ids = []
+    coverage = {
+        "registry": len(reg_ids),
+        "lint": report["summary"]["rules_total"],
+        "render_time": sorted(i for i in reg_ids if i.startswith("F")),
+    }
     ci = {
-        "gate": ("FAIL" if not theme_check["valid"] else report["summary"]["gate"]),
+        "gate": ("FAIL" if not meta_ok else report["summary"]["gate"]),
         "theme_check": theme_check,
+        "rules_doc_check": rules_doc_check,
         "strict": not args.no_strict,
         "article": str(html.resolve()),
         "markdown": str(md.resolve()) if md.exists() else None,
         "rules_total": report["summary"]["rules_total"],
         "rules_passed": report["summary"]["rules_passed"],
+        "rule_coverage": coverage,
         "error_failures": report["summary"]["error_failures"],
         "warning_failures": report["summary"]["warning_failures"],
         "failed_rules": [{"id": r["id"], "level": r["level"], "message": r["message"],
-                          "actual": r["actual"], "how_to_fix": FIX.get(r["id"], "见 references/lint-rules.md")}
+                          "actual": r["actual"], "how_to_fix": FIX.get(r["id"], "见 references/rules.md")}
                          for r in failed],
         "governance": governance,
         "stats": report["stats"],
@@ -178,13 +211,21 @@ def main():
         ci["human_decision"] = {"approved_by": ack.get("approved_by"),
                                 "decision": ack.get("decision"), "note": ack.get("note", "")}
     write_json(out_dir / "ci-report.json", ci)
-    print("CI GATE:", ci["gate"], "| rules passed:", ci["rules_passed"], "/", ci["rules_total"])
+    print("CI GATE:", ci["gate"], "| rules passed:", ci["rules_passed"], "/", ci["rules_total"],
+          f"| registry {coverage['registry']}" if coverage["registry"] else "")
     print("errors:", ci["error_failures"] or "none", "| warnings:", ci["warning_failures"] or "none")
+    print("meta gates: theme", "PASS" if theme_check["valid"] else "FAIL",
+          "| rules.md", "PASS" if rules_doc_check["valid"] else "FAIL")
     print("governance:", governance["conflicts"] or "no conflict",
           "| provisional:", ",".join(governance["provisional_rules"]))
     for r in ci["failed_rules"]:
         print(f"  [{r['level']:7}] {r['id']}  {r['message']}")
         print(f"            -> {r['how_to_fix']}")
+    for name, item in (("theme", theme_check), ("rules.md", rules_doc_check)):
+        if not item["valid"] and item.get("output"):
+            print(f"  [meta   ] {name}:")
+            for line in item["output"].splitlines()[-6:]:
+                print(f"            {line}")
     print("report:", out_dir / "ci-report.json")
     return 0 if ci["gate"] == "PASS" else 1
 

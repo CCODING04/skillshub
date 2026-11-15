@@ -41,6 +41,8 @@
     "highlight": "border-bottom:1.5px solid {border_accent};font-weight:500;color:{ink};",
     "quote": "margin:36px 0;padding:28px 20px;border-top:1px solid {border};border-bottom:1px solid {border};text-align:center;font-family:{title_font};font-size:17px;line-height:1.9;color:{ink};letter-spacing:0.8px;",
     "card": "margin:0;padding:16px 0;border-bottom:1px solid {border};font-size:14px;line-height:1.9;color:{body};",
+    "aside": "margin:4px 0 26px;padding:20px 18px 14px;background:{surface};border:1px solid {border};border-radius:{radius};",
+    "aside_title": "margin:0 0 6px;font-size:15px;font-weight:700;color:{primary};letter-spacing:.5px;",
     "tip": "margin:0 0 26px;padding:0 0 0 14px;border-left:2px solid {primary};font-size:14px;line-height:1.9;color:{muted_dark};",
     "th": "padding:10px 12px;text-align:left;border-bottom:1.5px solid {primary};color:{ink};font-weight:600;",
     "td": "padding:10px 12px;border-bottom:1px solid {border};color:{body};",

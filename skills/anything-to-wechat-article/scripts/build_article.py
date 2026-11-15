@@ -87,9 +87,10 @@ def fill(template, **fields):
 
 
 class Renderer:
-    def __init__(self, theme, b64_map):
+    def __init__(self, theme, b64_map, figs=None):
         self.t = theme
         self.b64 = b64_map
+        self.figs = figs or []
 
     def rich(self, s):
         txt = esc(s)
@@ -168,15 +169,59 @@ class Renderer:
             body.append("<tr>" + "".join('<td style="' + style + '">' + self.rich(c) + "</td>" for c in row) + "</tr>")
         return fill(self.t.part("table"), head=head, rows="".join(body))
 
-    def figure(self, fig):
+    def figure(self, fig, compact=False):
         b64 = self.b64.get(fig["id"])
         if not b64:
             return ""
         cap = fig.get("caption", "")
         img = ('<img src="data:image/png;base64,' + b64 + '" alt="' + attr(cap)
                + '" style="width:100%;height:auto;display:block;border-radius:' + self.t.tokens["radius"] + ';">')
-        return fill(self.t.part("figure"), img=img, caption=esc(cap),
-                    caption_style=self.t.style("caption"))
+        part = self.t.part("figure")
+        cap_style = self.t.style("caption")
+        if compact:  # 放进 aside 区块时收紧留白：区块自己负责边界
+            part = part.replace("margin:26px 0 8px", "margin:4px 0 2px")
+            cap_style = re.sub(r"margin:0 0 [0-9]+px", "margin:0 0 2px", cap_style)
+        return fill(part, img=img, caption=esc(cap), caption_style=cap_style)
+
+    def list_block(self, b):
+        """编号列表：编号单独占一列（宽度 = 主题的悬挂缩进），末条补足段后间距。"""
+        ordered = b.get("ordered", False)
+        indent = float(b.get("indent", 0) or 0)
+        extra = f"margin-left:{indent:g}em;" if indent > 0 else ""
+        items = b.get("items", [])
+        out = []
+        for i, item in enumerate(items, 1):
+            prefix = f"{i:02d}" if ordered else "·"
+            tail = "margin-bottom:22px;" if i == len(items) else ""
+            num = ('<span style="display:inline-block;width:30px;text-indent:0;'
+                   'color:' + self.t.tokens["accent"] + ';font-size:13px;'
+                   'font-weight:700;letter-spacing:.5px;">' + prefix + "</span>")
+            out.append('<p style="' + self.t.style("list_item") + extra + tail + '">'
+                       + num + self.rich(item) + "</p>")
+        return out
+
+    def aside(self, block):
+        """区块：把一组图/文收进一个带边框的容器，和上下文分开。
+
+        只用一种槽位（styles.aside），全篇最多两处（S24 校验）。容器带注释标记，
+        本地 lint 靠标记定位，粘进微信后注释会被丢弃、不影响样式。
+        """
+        inner = []
+        for b in block.get("blocks", []):
+            kind = b.get("type", "p")
+            if kind == "figure":
+                for f in self.figs:
+                    if f["id"] == b.get("id"):
+                        inner.append(self.figure(f, compact=True))
+            elif kind == "p":
+                inner.append(self.para(b.get("text", "")))
+            elif kind == "list":
+                inner.extend(self.list_block(b))
+        title = block.get("title", "")
+        head = ('<p style="' + self.t.style("aside_title") + '">' + esc(title) + "</p>"
+                ) if title else ""
+        return ('<!-- aside:start --><div style="' + self.t.style("aside") + '">'
+                + head + "".join(inner) + "</div><!-- aside:end -->")
 
     def takeaways(self, ir):
         items = ir["takeaways"]
@@ -219,9 +264,9 @@ def emit_figures(parts, figs, rnd, position):
 
 
 def build_html(ir, theme, b64_map):
-    rnd = Renderer(theme, b64_map)
-    parts = []
     figs = ir.get("figures", [])
+    rnd = Renderer(theme, b64_map, figs)
+    parts = []
     emit_figures(parts, figs, rnd, "top")
 
     # G17: the cover image may already carry the headline / kicker / subtitle.
@@ -265,20 +310,9 @@ def build_html(ir, theme, b64_map):
                 elif kind == "h3":
                     parts.append('<p style="' + theme.style("h3") + '">' + esc(b.get("text", "")) + "</p>")
                 elif kind == "list":
-                    ordered = b.get("ordered", False)
-                    indent = float(b.get("indent", 0) or 0)
-                    extra = f"margin-left:{indent:g}em;" if indent > 0 else ""
-                    items = b.get("items", [])
-                    for i, item in enumerate(items, 1):
-                        # 编号单独占一列（宽度 = 主题里的悬挂缩进），不与正文挤在同一行；
-                        # 末条补足段后间距，列表才不会和下一段粘成一片。
-                        prefix = f"{i:02d}" if ordered else "·"
-                        tail = "margin-bottom:22px;" if i == len(items) else ""
-                        num = ('<span style="display:inline-block;width:30px;text-indent:0;'
-                               'color:' + theme.tokens["accent"] + ';font-size:13px;'
-                               'font-weight:700;letter-spacing:.5px;">' + prefix + "</span>")
-                        parts.append('<p style="' + theme.style("list_item") + extra + tail + '">'
-                                     + num + rnd.rich(item) + "</p>")
+                    parts.extend(rnd.list_block(b))
+                elif kind == "aside":
+                    parts.append(rnd.aside(b))
                 elif kind == "quote":
                     parts.append(rnd.quote(b.get("text", "")))
                 elif kind == "card":
@@ -328,7 +362,79 @@ def build_html(ir, theme, b64_map):
     return rnd.shell(ir["title"], "\n".join(parts))
 
 
+BLOCK_KINDS = {"p", "quote", "card", "tip", "h3", "list", "code", "table",
+               "figure", "aside"}
+# 区块内只放「一组内容」：图、说明段、清单。放别的会被渲染器跳过，
+# 所以这里是白名单，不是建议。
+ASIDE_KINDS = {"figure", "p", "list"}
+
+
+def audit_block_kinds(ir):
+    """IR 里出现的块类型，必须都在渲染器里有分支。
+
+    渲染器对不认识的类型是直接跳过的——不报错、不留痕，成稿里就少一段。
+    aside 当初就是这么丢的：HTML 侧后来补了，Markdown 侧没补，归档里那张图
+    整块消失。这里把"静默"变成构建失败，新增块类型时必须两条链路一起补。
+    """
+    bad = []
+
+    def walk(blocks, where, allowed):
+        for b in blocks or []:
+            kind = b.get("type", "p")
+            if kind not in allowed:
+                if (kind, where) not in bad:
+                    bad.append((kind, where))
+            elif kind == "aside":
+                walk(b.get("blocks"), where + " / 区块内", ASIDE_KINDS)
+
+    for sec in ir.get("sections", []):
+        walk(sec.get("blocks"), "第 " + str(sec.get("no", "?")) + " 节", BLOCK_KINDS)
+    return bad
+
+
 def build_md(ir, fig_files):
+    fig_by_id = {f["id"]: f for f in ir.get("figures", [])}
+
+    def md_blocks(blocks, depth=0):
+        """IR 块 → Markdown 行。
+
+        aside 必须递归：它把一组内容收在框里，若这里不展开，框里的图会从归档
+        里整块消失（正文里看不见、图注也搜不到）。框内内容用引用块表示，
+        Markdown 里也有"被收在一起"的观感。
+        """
+        out, pad = [], "" if depth == 0 else "> "
+        for b in blocks:
+            kind = b.get("type", "p")
+            if kind in ("p", "card", "tip"):
+                out += [pad + b.get("text", ""), ""]
+            elif kind == "quote":
+                out += [pad + "> " + b.get("text", "").replace("\n", " "), ""]
+            elif kind == "h3":
+                out += [pad + "### " + b.get("text", ""), ""]
+            elif kind == "list":
+                ordered = b.get("ordered", False)
+                for i, item in enumerate(b.get("items", []), 1):
+                    out.append(pad + (f"{i}. " if ordered else "- ") + item)
+                out.append("")
+            elif kind == "code":
+                out += [pad + "```" + b.get("lang", "")] + list(b.get("lines", [])) + [pad + "```", ""]
+            elif kind == "table":
+                out += [pad + "| " + " | ".join(b.get("headers", [])) + " |"]
+                out += [pad + "| " + " | ".join("---" for _ in b.get("headers", [])) + " |"]
+                for row in b.get("rows", []):
+                    out += [pad + "| " + " | ".join(row) + " |"]
+                out.append("")
+            elif kind == "figure":
+                fid = b.get("id")
+                if fid in fig_files and fid in fig_by_id:
+                    cap = fig_by_id[fid].get("caption", "图示")
+                    out += [pad + "![" + cap + "](" + fig_files[fid] + ")", pad + cap, ""]
+            elif kind == "aside":
+                if b.get("title"):
+                    out += [pad + "**" + b["title"] + "**", ""]
+                out += md_blocks(b.get("blocks", []), depth + 1)
+        return out
+
     L = ["# " + ir["title"].replace("\n", " "), "", "> " + ir.get("subtitle", ""), ""]
     if ir.get("meta"):
         for m in ir["meta"]:
@@ -343,38 +449,13 @@ def build_md(ir, fig_files):
     for sec in ir.get("sections", []):
         L += ["## " + str(sec.get("no", "")) + " " + sec.get("heading", ""), ""]
         if sec.get("blocks"):
-            for b in sec["blocks"]:
-                kind = b.get("type", "p")
-                if kind in ("p", "quote", "card", "tip"):
-                    prefix = "> " if kind == "quote" else ("- " if kind == "card" else "")
-                    L += [prefix + b.get("text", ""), ""]
-                elif kind == "h3":
-                    L += ["### " + b.get("text", ""), ""]
-                elif kind == "list":
-                    ordered = b.get("ordered", False)
-                    for i, item in enumerate(b.get("items", []), 1):
-                        L.append((f"{i}. " if ordered else "- ") + item)
-                    L.append("")
-                elif kind == "code":
-                    L += ["```" + b.get("lang", "")] + list(b.get("lines", [])) + ["```", ""]
-                elif kind == "table":
-                    L += ["| " + " | ".join(b.get("headers", [])) + " |"]
-                    L += ["| " + " | ".join("---" for _ in b.get("headers", [])) + " |"]
-                    for row in b.get("rows", []):
-                        L += ["| " + " | ".join(row) + " |"]
-                    L.append("")
-                elif kind == "figure":
-                    fid = b.get("id")
-                    for f in ir.get("figures", []):
-                        if f["id"] == fid and fid in fig_files:
-                            L += ["![" + f.get("caption", "图示") + "](" + fig_files[fid] + ")",
-                                  f.get("caption", ""), ""]
+            L += md_blocks(sec["blocks"])
         else:
             L += list(sec.get("paragraphs", [])) + [""]
             if sec.get("quote"):
                 L += ["> " + sec["quote"].replace("\n", " "), ""]
             for c in sec.get("cards", []):
-                L += ["- " + c]
+                L += [c, ""]
             L.append("")
         for f in ir.get("figures", []):
             if f.get("position") == "after_section:" + str(sec.get("no", "")) and f["id"] in fig_files:
@@ -424,6 +505,14 @@ def main():
     theme = Theme(load_theme(root, args.theme, args.theme_path or None))
     with open(args.content, encoding="utf-8") as f:
         ir = json.load(f)
+    unknown = audit_block_kinds(ir)
+    if unknown:
+        print("ERROR 以下块类型没有对应的渲染实现，会从成稿里静默消失：")
+        for kind, where in unknown:
+            print(f"  {kind}  (出现在 {where})")
+        print("顶级块：在 build_article.py 的 HTML 与 Markdown 两条链路都补上分支。")
+        print("区块内：只放 figure / p / list，其余内容挪到框外。")
+        return 2
     out = Path(args.out).resolve()
     img_dir = out / "images"
     img_dir.mkdir(parents=True, exist_ok=True)

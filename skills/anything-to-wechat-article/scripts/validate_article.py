@@ -7,6 +7,7 @@ Use --strict (or ci_check.py) to make warnings blocking, like a CI gate.
 Exit code 0 = gate passed, 1 = gate failed, 2 = input error.
 """
 import argparse
+import difflib
 import base64
 import json
 import re
@@ -49,6 +50,8 @@ DEFAULT_CONFIG = {
     "min_images": 1,
     "min_blockquotes": 1,
     "min_bridge_zh": 40,
+    "max_caption_h3_ratio": 0.55,
+    "max_asides": 2,
     "internal_jargon": INTERNAL_JARGON,
 }
 
@@ -152,6 +155,8 @@ def run_validation(html_path, *, expect_figures=0, strict=False, md_path=None,
     dims_ok = bool(dims) and all(d and d[0] >= cfg["min_png_width"] for d in dims)
     captions, caption_pairs = caption_stats(h)
     figure_gaps = figure_gap_stats(h)
+    asides = count(r"<!--\s*aside:start\s*-->")
+    nested_asides = count(r"<!--\s*aside:start\s*-->[\s\S]*?<!--\s*aside:start\s*-->")
     consecutive_br = count(r"<br\s*/?>\s*<br\s*/?>")
 
     text = visible_text(h)
@@ -180,16 +185,39 @@ def run_validation(html_path, *, expect_figures=0, strict=False, md_path=None,
     source_marker = any(m in foot for m in SOURCE_MARKERS)
 
     md_has_appendix = None
+    md = ""
     if md_path and Path(md_path).exists():
         md = Path(md_path).read_text(encoding="utf-8")
         md_has_appendix = bool(re.search(r"整理过程与回溯|整理过程|回溯", md))
 
     is_talk = False
+    ir = {}
+    caption_h3 = None          # (相似度, 图注, 小标题)
     if ir_path and Path(ir_path).exists():
         ir = json.loads(Path(ir_path).read_text(encoding="utf-8"))
         kind = str(ir.get("source", {}).get("kind", "")).lower()
         is_talk = any(k in kind for k in ["video", "talk", "interview", "speech"]) or \
             any("讲者" in m.get("label", "") for m in ir.get("meta", []))
+        caps = {f.get("id"): f.get("caption", "") for f in ir.get("figures", [])}
+
+        def walk(blocks, last_h3):
+            """按顺序走一遍，图注只和它前面最近的小标题比——这才是同屏竞争关系。"""
+            nonlocal caption_h3
+            for b in blocks:
+                if b.get("type") == "h3":
+                    last_h3 = b.get("text", "")
+                elif b.get("type") == "figure":
+                    cap, h3 = caps.get(b.get("id"), ""), last_h3
+                    if cap and h3 and len(h3) >= 4:
+                        r = difflib.SequenceMatcher(None, cap, h3).ratio()
+                        if not caption_h3 or r > caption_h3[0]:
+                            caption_h3 = (round(r, 3), cap, h3)
+                elif b.get("type") == "aside":
+                    walk(b.get("blocks", []), last_h3)
+            return last_h3
+
+        for sec in ir.get("sections", []):
+            walk(sec.get("blocks", []), "")
 
     rules = []
 
@@ -231,6 +259,26 @@ def run_validation(html_path, *, expect_figures=0, strict=False, md_path=None,
     add("S22", "error", all(g >= cfg["min_bridge_zh"] for g in figure_gaps),
         f"相邻两图之间必须有正文过渡（>= {cfg['min_bridge_zh']} 中文字，图注不算）",
         {"gaps": figure_gaps, "min": min(figure_gaps) if figure_gaps else None})
+    ratio = caption_h3[0] if caption_h3 else 0.0
+    add("S23", "error", ratio < cfg["max_caption_h3_ratio"],
+        f"图注不复述它前面的小标题（相似度 < {cfg['max_caption_h3_ratio']}）；图注回答图在说什么，命名交给标题",
+        {"ratio": ratio, "caption": caption_h3[1] if caption_h3 else None,
+         "h3": caption_h3[2] if caption_h3 else None})
+    add("S24", "error", asides <= cfg["max_asides"] and not nested_asides,
+        f"区块（aside）全篇 ≤ {cfg['max_asides']} 处且不嵌套：区块用来分开一组内容，不能变成整节的外框",
+        {"count": asides, "nested": nested_asides})
+
+    # S25: Markdown 归档必须带上每张图。aside 当初就被导出器整块跳过，图与图注
+    # 都消失，而 HTML 侧一切正常——只看成稿看不出来，必须比对两条出口。
+    md_missing = []
+    if md and ir:
+        for f in ir.get("figures", []):
+            cap = (f.get("caption") or "").strip()
+            if cap and cap not in md:
+                md_missing.append(f.get("id"))
+        add("S25", "error", not md_missing,
+            "每张图的图注都要出现在 Markdown 归档里：图不能只存在于 HTML 一侧",
+            {"missing": md_missing, "figures": len(ir.get("figures", []))})
 
     # ---- content: warning (blocking under --strict) ----
     add("C01", "error" if is_talk else "warning", speaker_intro,
@@ -278,6 +326,7 @@ def run_validation(html_path, *, expect_figures=0, strict=False, md_path=None,
             "foot_bullets": foot_bullets, "used_tags": used,
             "unexpected_tags": unexpected, "external_resources": external,
             "figure_captions": captions, "figure_gaps_zh": figure_gaps,
+            "asides": asides,
             "speaker_intro": speaker_intro,
         },
         "profile": {"id": profile, "zh_chars": zh_chars,

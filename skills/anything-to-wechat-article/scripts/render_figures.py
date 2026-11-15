@@ -15,6 +15,8 @@ import sys
 import tempfile
 from pathlib import Path
 
+RULE_IDS = ["F01"]   # 本脚本执行的规则 id；check_rules 用它对齐注册表
+
 CANDIDATES = [
     r"C:\Program Files\Google\Chrome\Application\chrome.exe",
     r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",

@@ -1,109 +1,59 @@
-# 公众号排版硬规范
+# 版式规范
 
-微信编辑器会过滤样式表与 class；一份合格成稿的内联样式实测统计如下（不是凭印象）：
+本文件只写三样东西：微信编辑器的平台事实、标签与槽位边界、主题文件的位置。
+**具体数值（字号、间距、颜色、圆角）不在文档里，以 `assets/themes/<id>/theme.json` 为准**——
+文档抄一遍数值就会和主题漂移，而主题是能被渲染验证的那一层。
 
-```
-925,222 bytes | <style> 标签 0 | class 属性 0 | 内联 style 111 处
-标签：html head meta title body div(6) p(53) img(4) strong(30) h1(1) br(12) blockquote(10) span(7)
-无 section / figure / figcaption / script
-base64 图片 4 张；配色 9 个色值
-```
+## 平台事实（L0，不可豁免）
 
-## 硬规范
+1. 编辑器过滤 `<style>` 与 class：**样式只能内联在每个元素上**，依赖样式表或类名的排版粘贴后会塌。
+2. 只保留白名单标签：`div / p / img / strong / h1 / h2 / br / blockquote / span / table / tr / td`。多列布局用 `table`。
+3. 外链资源会失效：字体、CSS、JS 一律不引；图片走 `data:image/png;base64,…`。
+4. 图片双轨：HTML 内嵌 base64 保证本地预览自包含，同时输出独立 PNG 供后台手动上传（粘贴时编辑器不一定接管 base64）。
+5. 图注与图片分离：`<p><img …></p>` + 一个居中小字 `<p>` 作图注；`figure/figcaption` 不被保留。
+6. 页面容器由主题 `page` 决定（`max_width / padding / font_size / line_height / letter_spacing`），背景取 `page_bg`。
 
-1. **只用内联样式**：微信编辑器会过滤 `<style>` 与 class，任何依赖样式表或类名的排版粘贴后都会塌。
-2. **标签白名单**：`div / p / img / strong / h1 / h2 / br / blockquote / span / table / tr / td`。禁用 `section / figure / figcaption / script / iframe`。多列布局优先 `table`，少用 flex。
-3. **图片双轨**：HTML 内嵌 `data:image/png;base64,…` 保证本地预览自包含；同时输出独立 PNG 供公众号后台手动上传（粘贴时 base64 不一定被编辑器接管）。
-4. **图注与图片分离**：用 `<p><img …></p>` + 一个居中的小字 `<p>` 作图注，不用 `figure/figcaption`。
-5. **外层容器**：由主题 `page` 决定 —— 默认 `max-width:677px;margin:0 auto;padding:24px 20px 56px;font-size:16px;line-height:1.85;letter-spacing:.3px`，背景用主题 `page_bg`（不写死 `#FFFFFF`，橄榄手记是 `#FDFDF8`）。字体栈 `-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif`；禅意风标题可换衬线。
-6. **不使用外链**：字体、CSS、JS 一律不引；无 `position:fixed`。
-7. **文末必须写**：资料来源、整理流程、引语是否书面化、小标题是否自拟、缺失片段说明。
-8. **一屏一个命名者**：每屏只保留一个主导标题层级与一个视觉焦点；导语不重复标题主张，卡片标题不重复章节名。缩略图状态下仍能读出唯一主张才算过关。
+这些事实对应 S01–S05，由 `validate_article.py` 判定，不靠人记。
 
-## 主题体系
+## 槽位边界
 
-每套主题是 `assets/themes/<id>/theme.json`，含五块：
+组件样式的名字是固定的一组，渲染器只认这些键。新增组件＝先加槽位、再写模板，不允许某一篇独有样式。
 
-- `tokens`：paper / surface / border / ink / body / muted / primary / accent / radius
-- `page`：`max_width / padding / font_size / line_height / letter_spacing`
-- `styles`：标题、导语、正文、引用、卡片、提示卡、表格、图注等组件样式串
-- `html`：章节头、代码框、表格、插图、文末 CTA 等骨架模板
-- `code`：代码框六槽位（`bg / text / keyword / comment / border / accent`）+ `label / header_bg / dots` 与各段样式
-
-六套内置主题、五套风格配方、色系映射与派生算法见 [`themes.md`](./themes.md)。**只改配色不改骨架**会得到「同一张脸换口红」；要换风格请换主题或按骨架派生。
-
-**全篇统一**：一篇只引用一个 `theme.json`，章节头骨架全篇一致，不混用两种编号样式。禁止给单个章节套巨型外框、异色背景或独立主题，破坏整体节奏。
-
-## 代码框六槽位（所有主题共用结构）
-
-| 槽位 | 用途 | 约束 |
-|---|---|---|
-| `bg` | 代码底 | 主题 token，模板写 `{code_bg}` |
-| `text` | 代码字 | 对 `bg` ≥ 12:1 |
-| `keyword` | 行内关键字 | 画在 `bg` 上，对 `bg` ≥ 4.5:1 |
-| `comment` | 注释 | 以 `#` 或 `//` 开头的行整体降级，对 `bg` ≥ 4.5:1 |
-| `border` | 外框 | 部分主题同时做虚线分隔 |
-| `accent` | 左侧强调条 | 主色派生，通常 2–4px |
-
-附加：`label`（语言标签，画在代码头上，对 `header_bg` ≥ 4.5:1）、`header_bg`（橄榄手记是 `#1E1F23` 深墨窄条）、`dots`（mac 三色圆点开关）、`radius`（绿/票据/手账不同）。
-
-**`keyword` 与 `label` 必须分开取值**：前者在浅底，后者在代码头，深色头主题不能共用一个浅橙。**六槽位必须按主题取值，禁止把六套统一成同一套近似灰**；新增主题用 `derive_palette.py` 派生，并跑 `--audit-themes` 检查对比度。
-
-## 设计令牌（默认主题「墨蓝橘笺」`ink-tangerine`）
-
-| 用途 | 值 |
+| 类别 | 槽位 |
 |---|---|
-| 正文 | `#3F3F3F`，16px，行高 1.85 |
-| 主色（标题／深底引用） | `#20344F` |
-| 强调色（编号、竖线、关键词） | `#E27145` |
-| 浅底（引用块、信息卡） | `#FAF8F4` |
-| 次级灰 | `#8A94A0` / `#5A6675` / `#C9CDD3` |
-| 代码底 / 代码字 | `#F4F2ED` / `#1F2933` |
-| 页面底 / 卡片底 | `#FFFFFF` / `#FAF8F4` |
+| 页面 | `page.max_width / padding / font_size / line_height / letter_spacing` |
+| 文本 | `paragraph`、`lead`、`h3`、`caption`、`highlight` |
+| 块 | `quote`、`card`、`aside`、`aside_title`、`tip`、`list_item` |
+| 头部 | `kicker`、`title`、`subtitle`、`meta`、`meta_label`、`divider` |
+| 表格 | `th`、`td`、`td_alt` |
+| 文末 | `source`、`source_heading`、`source_item` |
+| 代码 | `code`（六槽位 + label / header_bg / dots / radius） |
+| 骨架 | `html.head / takeaways_head / takeaway_item / closing / source / figure / table / code` |
 
-两色以内为主，灰阶不算主色；全篇色值控制在 10 个内（代码框六槽位另计）。其他主题的取值见 [`themes.md`](./themes.md)。
+`aside` 是「区块」：把一组内容（通常一张图加一句说明）收进带边框的容器，用来和上下文分开。它承担分组，不承担强调；全篇最多两处、不嵌套（S24）。
 
-## 组件片段（墨蓝橘笺参考款，可直接复制，全部内联）
+## 主题文件
 
-其余五套的章节头、引用卡、提示卡、CTA 结构各自不同，以 `assets/themes/<id>/theme.json` 的 `html` 与 `styles` 为准，不要用下面的片段硬套到别的主题上。
-
-```html
-<!-- 章节标题 -->
-<p style="margin:38px 0 16px;"><span style="display:inline-block;padding:3px 10px;background:#20344F;color:#FFFFFF;font-size:13px;border-radius:3px;letter-spacing:1px;">01</span>　<strong style="font-size:20px;color:#20344F;">小标题</strong></p>
-
-<!-- 正文 -->
-<p style="margin:0 0 18px;text-align:justify;">段落，关键句用 <strong style="color:#20344F;">加粗主色</strong>。</p>
-
-<!-- 金句引用 -->
-<blockquote style="margin:24px 0 28px;padding:16px 18px;background:#FAF8F4;border-left:4px solid #E27145;color:#20344F;font-size:17px;line-height:1.85;">金句</blockquote>
-
-<!-- 图片 + 图注 -->
-<p style="margin:26px 0 8px;text-align:center;"><img src="data:image/png;base64,…" alt="图 1" style="width:100%;height:auto;display:block;border-radius:6px;"></p>
-<p style="margin:0 0 26px;text-align:center;font-size:13px;color:#8A94A0;">图 1 ｜ 这张图在回答什么</p>
-
-<!-- 信息卡 / 清单项 -->
-<div style="margin:0 0 16px;padding:14px 18px;background:#FAF8F4;border-radius:6px;">①　条目</div>
-
-<!-- 分割线 -->
-<p style="margin:0 0 34px;text-align:center;color:#C9CDD3;font-size:14px;letter-spacing:6px;">● ● ●</p>
-
-<!-- 结尾深底引用 -->
-<blockquote style="margin:24px 0 30px;padding:18px;background:#20344F;color:#FFFFFF;font-size:17px;line-height:1.9;border-radius:6px;">收束语</blockquote>
+```
+assets/themes/<id>/theme.json
+  tokens   语义色板（primary / accent / ink / body / muted / muted_dark / surface / border / page_bg / radius / font_stack …）
+  page     页面参数
+  styles   上面那张槽位表的样式串，{token} 占位符在渲染时求值
+  html     骨架模板，{{field}} 占位符由渲染器填
+  code     代码框六槽位与各段样式
 ```
 
-## 图片尺寸
+同一份 IR 换主题就能重出稿，说明版式确实在主题里而不在文档里。
 
-| 类型 | 画布 | 2x 输出 |
+**一篇只引用一个 `theme.json`**；章节头骨架全篇一致；单节不套独立主题或异色背景（区块除外，且受 S24 约束）。
+
+六套主题的清单、风格配方、色系映射与派生算法见 [`themes.md`](./themes.md)；对比度与六槽位由 `check_themes.py`、`derive_palette.py --audit-themes` 判定。
+
+## 画布
+
+| 类型 | 画布 | 2× 输出 |
 |---|---|---|
 | 头图 | 1080×460 | 2160×920 |
 | 正文对比／清单图 | 1080×600 ~ 1080×660 | 2160×1200 ~ 2160×1320 |
 
-宽度固定 1080，高度按内容定；`html,body` 固定宽高、`overflow:hidden`，避免截图留白。
-
-## 校验规则（`scripts/validate_article.py`）
-
-- `<style` 出现次数 = 0；`class=` = 0；外链 `http(s)://` 资源 = 0
-- 禁用标签 `section / figure / figcaption / script / iframe` 出现次数 = 0
-- `<img` 数 = base64 图片数，且 > 0；未替换占位符 `{{` = 0
-- `blockquote` ≥ 1；每个 `<img` 的 `style` 含 `width:100%`
-- 输出 JSON 报告，不通过时退出码非 0
+宽度固定 1080，高度按内容定；`html, body` 固定宽高并 `overflow:hidden`，避免截图留白。配图规则见 [`rules.md`](./rules.md)。

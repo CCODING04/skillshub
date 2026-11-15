@@ -157,6 +157,13 @@ def run_governance(*, registry_path, task_meta=None, lint_report=None,
 
     if lint:
         code_ids = {r["id"] for r in lint.get("rules", [])}
+        # 图内文字类规则（F*）在渲染前执行，不在文章 HTML 的 lint 报告里，
+        # 但它们同样是可判定规则，必须计入一致性比对，否则每次都被误判成漂移。
+        try:
+            from render_figures import RULE_IDS as FIGURE_RULE_IDS
+            code_ids |= set(FIGURE_RULE_IDS)
+        except Exception:
+            pass
         missing, extra = sorted(reg_ids - code_ids), sorted(code_ids - reg_ids)
         if missing or extra:
             conflicts.append(conflict(

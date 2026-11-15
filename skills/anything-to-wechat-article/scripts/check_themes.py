@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Validate theme.json files: schema, template placeholders, six code slots, contrast.
 
-N6 decision: machine-check what guardrails G15/G16 state in prose.
+Checks what the theme spec requires (code slots, contrast floors) instead of leaving it to prose.
 Exit 0 = all themes pass, 1 = any failure, 2 = input error.
 """
 import argparse
@@ -14,7 +14,7 @@ REQUIRED_TOP = ["id", "name_zh", "tokens", "page", "styles", "code", "html"]
 REQUIRED_TOKENS = ["primary", "accent", "ink", "body", "muted", "muted_dark",
                    "surface", "border", "page_bg", "radius", "font_stack"]
 REQUIRED_STYLES = ["kicker", "title", "subtitle", "meta", "paragraph", "quote",
-                   "card", "caption", "source", "h3", "list_item", "highlight"]
+                   "card", "aside", "aside_title", "caption", "source", "h3", "list_item", "highlight"]
 REQUIRED_CODE = ["bg", "text", "keyword", "comment", "border", "accent", "label"]
 REQUIRED_CODE_STYLES = ["frame_style", "header_style", "label_style", "body_style",
                         "line_style", "comment_style", "keyword_style"]

@@ -59,6 +59,16 @@
           "text": "一个可以自查的最小例子"
         },
         {
+          "type": "aside",
+          "title": "一组对照",
+          "blocks": [
+            {
+              "type": "figure",
+              "id": "FIG2"
+            }
+          ]
+        },
+        {
           "type": "list",
           "ordered": true,
           "items": [
@@ -144,7 +154,7 @@
       "question": "两种做法差在哪",
       "file": "fig2.png",
       "caption": "图 1 ｜ 两种交互隐喻的对照",
-      "position": "after_section:02"
+      "position": "inline"
     }
   ],
   "takeaways": [
