@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "updated_at": "2026-11-13",
+  "updated_at": "2026-11-15",
   "levels": {
     "L0": "平台事实：永不可豁免，变更须重新实测",
     "L1": "结构契约：可修订但需版本化与范式回归测试",
@@ -584,6 +584,32 @@
       "conflict_keywords": [
         "信息卡保留口径",
         "信息卡写口径"
+      ]
+    },
+    {
+      "id": "S22",
+      "level": "L1",
+      "title": "相邻两图之间必须有正文过渡",
+      "source": {
+        "type": "user_feedback",
+        "evidence": "两图连排导致信息密集、读者直接滑过；要求两图之间附文字",
+        "verified_at": "2026-11-15"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 60,
+      "waiver_allowed": true,
+      "provisional": false,
+      "conflict_keywords": [
+        "两图连排",
+        "允许连续配图",
+        "图后不写文字"
       ]
     }
   ],

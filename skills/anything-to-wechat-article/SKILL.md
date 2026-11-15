@@ -27,7 +27,7 @@ description: 把任意来源（X 推文与 X 长文、视频、网页、PDF、Wo
 - **对比度**：以六套内置主题实际取值为准——正文/墨色对纸底 ≥ 7:1（WCAG AAA），代码 text 对代码底 ≥ 12:1，关键字/注释/语言标签 ≥ 4.5:1。`check_themes.py` 与 `--audit-themes` 用同一套门槛。不够就调明度，不靠加粗放大。
 - **主题一致**：一篇只用一套主题；章节头骨架全篇统一，不混用两种编号样式。
 - **代码框**：六槽位（底 / 字 / 关键字 / 注释 / 边框 / 左条）按主题取值，六套互不共用近似灰；`keyword` 与 `label` 分开。
-- **配图**：每张图先有一个「唯一要回答的问题」；图注回答该问题，不复述标题；图内事实可在原文找到。
+- **配图**：每张图先有一个「唯一要回答的问题」；图注回答该问题，不复述标题；图内事实可在原文找到。**两张图不挨着排**——中间要有正文段落（≥40 中文字）承接，图注不算过渡（S22）。
 - **排版**：`<style` = 0、`class=` = 0、外链资源 = 0；标签限于 `div/p/img/strong/h1/h2/br/blockquote/span/table/tr/td`。
 - **交付**：`validate_article.py --expect-figures N` 返回 `valid=true`，未替换占位符 = 0，`<img` 数 = base64 图数 = 独立 PNG 数。
 - **抓眼**：一屏只留一个命名者（一个主导标题层级、一个视觉焦点），导语与卡片标题不重复标题主张。**封面已用视觉承担的主标题/栏目/副标题，正文用 `cover_carries_title: true` 省去**，不重复一遍。
@@ -130,7 +130,7 @@ python scripts/ci_check.py --html dist/wechat-article.html --md dist/article.md 
   --ir content.json --theme <S0-B 选定的主题> --out dist
 ```
 
-`validate_article.py` 跑 error 级 `S01–S21` 与 warning 级 `C01–C05`；CI 默认 `--strict`，warning 也阻塞。`check_themes.py` 与 `--audit-themes` 的结果一并纳入门禁，`ci-report.json` / `lint-report.json` / `rule-review.json` 随交付落盘。**门禁不过、或出现 `NEEDS_DECISION`，都不许交付。**
+`validate_article.py` 跑 error 级 `S01–S22` 与 warning 级 `C01–C05`；CI 默认 `--strict`，warning 也阻塞。`check_themes.py` 与 `--audit-themes` 的结果一并纳入门禁，`ci-report.json` / `lint-report.json` / `rule-review.json` 随交付落盘。**门禁不过、或出现 `NEEDS_DECISION`，都不许交付。**
 
 再截一次首屏确认图片不是破图。交付：HTML 主稿、独立 PNG、Markdown、逐字稿（如有）、来源与整理说明。
 
@@ -158,7 +158,7 @@ python scripts/ci_check.py --html dist/wechat-article.html --md dist/article.md 
 | `scripts/render_figures.py` | 矢量式 HTML → 2x PNG 批量渲染 |
 | `scripts/build_article.py` | IR → 全内联 HTML + Markdown；`--theme` / `--theme-path` / `--list-themes` |
 | `scripts/derive_palette.py` | 主色 + 骨架 → palette、代码框六槽位、对比度；`--write-theme` / `--audit-themes` |
-| `scripts/validate_article.py` | 26 条 lint（S01–S21 / C01–C05），支持 `--strict` / `--md` / `--ir` |
+| `scripts/validate_article.py` | 27 条 lint（S01–S22 / C01–C05），支持 `--strict` / `--md` / `--ir` |
 | `scripts/ci_check.py` | CI 门禁入口；输出 `ci-report.json` 与逐条修复建议 |
 | `scripts/check_themes.py` | 主题 schema、模板占位符、代码六槽位、对比度校验 |
 | `scripts/check_rules.py` | 规则注册表校验 + 冲突检测，产出 `conflict-report.json` / `rule-review.json` |

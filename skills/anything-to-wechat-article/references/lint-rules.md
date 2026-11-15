@@ -51,6 +51,7 @@ python scripts/ci_check.py --html ... --config lint-config.json
 | S19 | 无连续 `<br>` | 连续 br = 0 | 伪段落 |
 | S20 | 无内部流程词 | 正文不含 S0-A / feasibility / base64 / content.json / 拍板 等 | 把流程黑话写给读者 |
 | S21 | 正文长度 | 中文字符 ≥ 1500 | IR 漏 sections／空稿 |
+| S22 | 相邻图之间要有文字 | 任意两张紧邻的图之间，非图注的中文字符 ≥ 40 | 两图连排＝信息密集区没有过渡，读者在手机上会直接滑过去 |
 
 ## warning 级：内容质量（`--strict` 下阻塞）
 

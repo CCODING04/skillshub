@@ -35,14 +35,6 @@ SHORT_PROFILE = {
     "min_component_inline_rate": 0.90,
 }
 
-SHORT_PROFILE = {
-    "min_zh_chars": 400,
-    "min_glossary_notes": 3,
-    "min_paragraphs": 8,
-    "min_inline_styles": 10,
-    "min_component_inline_rate": 0.90,
-}
-
 DEFAULT_CONFIG = {
     "min_inline_styles": 20,
     "min_paragraphs": 20,
@@ -56,6 +48,7 @@ DEFAULT_CONFIG = {
     "profile_threshold_zh": 1500,
     "min_images": 1,
     "min_blockquotes": 1,
+    "min_bridge_zh": 40,
     "internal_jargon": INTERNAL_JARGON,
 }
 
@@ -100,6 +93,29 @@ def caption_stats(h):
     return len(good), len(pairs)
 
 
+CAPTION_P = re.compile(r"<p\b[^>]*text-align\s*:\s*center[^>]*>[\s\S]*?</p>", re.I)
+
+
+def figure_gap_stats(h):
+    """Chinese chars of real prose sitting between each pair of adjacent images.
+
+    Captions are centre-aligned <p> and carry no prose, so they are stripped before
+    counting: two figures separated only by their captions score ~0 and fail S22.
+    """
+    marks = [m.start() for m in re.finditer(r"<img\b", h, re.I)]
+    if len(marks) < 2:
+        return []
+    tags = [m.end() for m in re.finditer(r"<img\b[^>]*>", h, re.I)]
+    gaps = []
+    for i in range(len(marks) - 1):
+        start = tags[i] if i < len(tags) else marks[i]
+        seg = h[start:marks[i + 1]]
+        seg = CAPTION_P.sub(" ", seg)
+        plain = re.sub(r"<[^>]+>", " ", seg)
+        gaps.append(len(re.findall(r"[\u4e00-\u9fa5]", plain)))
+    return gaps
+
+
 def run_validation(html_path, *, expect_figures=0, strict=False, md_path=None,
                    ir_path=None, config=None, rules_out=None,
                    style_id=None, style_overrides=None):
@@ -135,17 +151,11 @@ def run_validation(html_path, *, expect_figures=0, strict=False, md_path=None,
     dims = png_dimensions(h)
     dims_ok = bool(dims) and all(d and d[0] >= cfg["min_png_width"] for d in dims)
     captions, caption_pairs = caption_stats(h)
+    figure_gaps = figure_gap_stats(h)
     consecutive_br = count(r"<br\s*/?>\s*<br\s*/?>")
 
     text = visible_text(h)
     zh_chars = len(re.findall(r"[\u4e00-\u9fa5]", text))
-    # Length-aware lint profile (S14 and content thresholds). Explicit in the report.
-    profile = "long" if zh_chars >= cfg["profile_threshold_zh"] else "short"
-    profile_overrides = {}
-    if profile == "short":
-        for k, val in SHORT_PROFILE.items():
-            profile_overrides[k] = {"long": cfg[k], "short": val}
-            cfg[k] = val
     # Length-aware lint profile (S14 and content thresholds). Explicit in the report.
     profile = "long" if zh_chars >= cfg["profile_threshold_zh"] else "short"
     profile_overrides = {}
@@ -218,6 +228,9 @@ def run_validation(html_path, *, expect_figures=0, strict=False, md_path=None,
     add("S20", "error", not jargon, "正文不得出现内部流程术语", jargon)
     add("S21", "error", zh_chars >= cfg["min_zh_chars"],
         f"正文中文字符 >= {cfg['min_zh_chars']}", zh_chars)
+    add("S22", "error", all(g >= cfg["min_bridge_zh"] for g in figure_gaps),
+        f"相邻两图之间必须有正文过渡（>= {cfg['min_bridge_zh']} 中文字，图注不算）",
+        {"gaps": figure_gaps, "min": min(figure_gaps) if figure_gaps else None})
 
     # ---- content: warning (blocking under --strict) ----
     add("C01", "error" if is_talk else "warning", speaker_intro,
@@ -264,12 +277,9 @@ def run_validation(html_path, *, expect_figures=0, strict=False, md_path=None,
             "glossary_notes": len(glossary), "latin_tokens": len(latin_tokens),
             "foot_bullets": foot_bullets, "used_tags": used,
             "unexpected_tags": unexpected, "external_resources": external,
-            "figure_captions": captions, "speaker_intro": speaker_intro,
+            "figure_captions": captions, "figure_gaps_zh": figure_gaps,
+            "speaker_intro": speaker_intro,
         },
-        "profile": {"id": profile, "zh_chars": zh_chars,
-                    "threshold": cfg["profile_threshold_zh"],
-                    "applied_overrides": profile_overrides,
-                    "note": "短稿独立阈值，全部写进报告，不静默放宽"},
         "profile": {"id": profile, "zh_chars": zh_chars,
                     "threshold": cfg["profile_threshold_zh"],
                     "applied_overrides": profile_overrides,
