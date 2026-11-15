@@ -611,6 +611,32 @@
         "允许连续配图",
         "图后不写文字"
       ]
+    },
+    {
+      "id": "F01",
+      "level": "L1",
+      "title": "图里不用代词作主语",
+      "source": {
+        "type": "user_feedback",
+        "evidence": "图内标题写「她团队禁掉了…」，单独转发时没有指代对象；要求换成姓名",
+        "verified_at": "2026-11-15"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "figure-html"
+        ]
+      },
+      "review_after_days": 90,
+      "waiver_allowed": true,
+      "provisional": false,
+      "conflict_keywords": [
+        "图内用代词",
+        "她团队",
+        "讲者团队即可"
+      ]
     }
   ],
   "note": "主题由 assets/themes/ 统一管理（N1）；规则阈值不随主题变化。规则变更须跑 check_themes.py + ci_check.py 回归。"

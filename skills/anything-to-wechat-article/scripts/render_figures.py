@@ -5,8 +5,10 @@ No image-generation model is used. Chinese labels are rendered by the DOM.
 """
 import argparse
 import glob
+import html
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -81,6 +83,21 @@ def browser_candidates(explicit=None):
     return out
 
 
+def pronoun_hits(html_text):
+    """图会被单独转发，图里不能只用「她/他」——脱离正文就没有指代对象。
+
+    只查人物代称，不查「它」（指物，图里自足）；「其他/其它」不算。
+    想保留原话里的代词，在 HTML 里写 <!-- allow-pronoun: 理由 -->。
+    """
+    if re.search(r"<!--\s*allow-pronoun", html_text):
+        return []
+    body = re.sub(r"<!--[\s\S]*?-->", " ", html_text)
+    body = re.sub(r"<style[\s\S]*?</style>", " ", body)
+    body = re.sub(r"<title[\s\S]*?</title>", " ", body)
+    plain = html.unescape(re.sub(r"<[^>]+>", " ", body))
+    return re.findall(r"(?<!其)[她他][们]?", plain)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--manifest", required=True, help="JSON: {figures:[{html,out,width,height}]}")
@@ -88,6 +105,8 @@ def main():
     ap.add_argument("--scale", type=int, default=2, help="device scale factor (2 = high-DPI)")
     ap.add_argument("--browser", default="", help="explicit browser executable")
     ap.add_argument("--timeout", type=int, default=120)
+    ap.add_argument("--allow-pronouns", action="store_true",
+                    help="skip the F01 check (figure text must name the subject, not use 她/他)")
     args = ap.parse_args()
 
     browsers = browser_candidates(args.browser)
@@ -99,6 +118,23 @@ def main():
         items = json.load(f)["figures"]
     base = Path(args.dir).resolve()
     base.mkdir(parents=True, exist_ok=True)
+
+    if not args.allow_pronouns:
+        bad = 0
+        for item in items:
+            src = (base / item["html"])
+            if not src.exists():
+                continue
+            hits = pronoun_hits(src.read_text(encoding="utf-8"))
+            if hits:
+                bad += 1
+                print(f"[F01] {item['html']} 用了人物代称 {hits}：图会被单独转发，"
+                      f"标题与图内文字要写出具体主体（人名/团队/产品名）", file=sys.stderr)
+        if bad:
+            print(f"F01 FAILED on {bad} figure(s); 改完再渲染（确属引语可写 <!-- allow-pronoun: 理由 -->）",
+                  file=sys.stderr)
+            return 1
+
     failures = 0
     used = browsers[0]
 
@@ -113,8 +149,15 @@ def main():
 
         ok = False
         tried = []
+        out.parent.mkdir(parents=True, exist_ok=True)
+        tmp = out.with_name(out.stem + ".tmp.png")
         for browser in [used] + [b for b in browsers if b != used]:
             tried.append(os.path.basename(browser))
+            # 先写临时文件再改名：桌面版 Chrome/Edge 会「退出码 0、不写文件」，
+            # 直接写 out 会让旧图冒充新图（曾因此误判成功），直接删 out 又会
+            # 在全失败时毁掉上一版。临时文件两头都不占。
+            if tmp.exists():
+                tmp.unlink()
             profile = tempfile.mkdtemp(prefix="figrender_")
             cmd = [
                 browser, "--headless=new", "--disable-gpu", "--no-sandbox", "--no-first-run",
@@ -122,12 +165,13 @@ def main():
                 f"--force-device-scale-factor={args.scale}",
                 f"--user-data-dir={profile}",
                 f"--window-size={item['width']},{item['height']}",
-                f"--screenshot={out}", html.as_uri(),
+                f"--screenshot={tmp}", html.as_uri(),
             ]
             try:
-                r = subprocess.run(cmd, capture_output=True, text=True, timeout=args.timeout)
-                ok = out.exists() and out.stat().st_size > 1000
+                subprocess.run(cmd, capture_output=True, text=True, timeout=args.timeout)
+                ok = tmp.exists() and tmp.stat().st_size > 1000
                 if ok:
+                    os.replace(tmp, out)
                     used = browser
                     print(f"[OK] {item['out']} {out.stat().st_size} bytes  "
                           f"{item['width']}x{item['height']} @{args.scale}x  via {os.path.basename(browser)}")
@@ -138,6 +182,8 @@ def main():
                 print(f"[retry] timeout with {os.path.basename(browser)}", file=sys.stderr)
             finally:
                 shutil.rmtree(profile, ignore_errors=True)
+                if tmp.exists():
+                    tmp.unlink()
         if not ok:
             print(f"[FAIL] {item['out']}  tried: {', '.join(tried)}", file=sys.stderr)
             failures += 1

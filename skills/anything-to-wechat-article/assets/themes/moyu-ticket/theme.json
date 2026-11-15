@@ -37,7 +37,7 @@
     "divider": "margin:6px 0 26px;border-top:1px dashed {ink};height:0;line-height:0;",
     "paragraph": "margin:0 0 16px;font-size:14px;line-height:1.9;text-align:justify;color:{body};",
     "h3": "margin:24px 0 10px;font-size:15px;font-weight:800;color:{ink};border-left:3px solid {primary};padding-left:10px;",
-    "list_item": "margin:0 0 8px;padding-left:20px;text-indent:-20px;font-size:14px;line-height:1.9;color:{body};",
+    "list_item": "margin:0 0 12px;padding-left:30px;text-indent:-30px;font-size:14px;line-height:1.9;color:{body};",
     "highlight": "background:{accent};padding:0 3px;font-weight:700;color:{ink};",
     "quote": "margin:24px 0 28px;padding:16px 18px;background:{surface};border:2px solid {ink};box-shadow:4px 4px 0 {ink};font-size:15px;line-height:1.8;color:{ink};font-weight:700;",
     "card": "margin:0 0 12px;padding:12px 16px;background:{surface};border:1px solid {ink};font-size:14px;line-height:1.8;color:{body};",

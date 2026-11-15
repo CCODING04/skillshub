@@ -27,7 +27,7 @@ description: 把任意来源（X 推文与 X 长文、视频、网页、PDF、Wo
 - **对比度**：以六套内置主题实际取值为准——正文/墨色对纸底 ≥ 7:1（WCAG AAA），代码 text 对代码底 ≥ 12:1，关键字/注释/语言标签 ≥ 4.5:1。`check_themes.py` 与 `--audit-themes` 用同一套门槛。不够就调明度，不靠加粗放大。
 - **主题一致**：一篇只用一套主题；章节头骨架全篇统一，不混用两种编号样式。
 - **代码框**：六槽位（底 / 字 / 关键字 / 注释 / 边框 / 左条）按主题取值，六套互不共用近似灰；`keyword` 与 `label` 分开。
-- **配图**：每张图先有一个「唯一要回答的问题」；图注回答该问题，不复述标题；图内事实可在原文找到。**两张图不挨着排**——中间要有正文段落（≥40 中文字）承接，图注不算过渡（S22）。
+- **配图**：每张图先有一个「唯一要回答的问题」；图注回答该问题，不复述标题；图内事实可在原文找到；**图内主语写名字不写代词**（F01，图会被单独转发）。**两张图不挨着排**——中间要有正文段落（≥40 中文字）承接，图注不算过渡（S22）。
 - **排版**：`<style` = 0、`class=` = 0、外链资源 = 0；标签限于 `div/p/img/strong/h1/h2/br/blockquote/span/table/tr/td`。
 - **交付**：`validate_article.py --expect-figures N` 返回 `valid=true`，未替换占位符 = 0，`<img` 数 = base64 图数 = 独立 PNG 数。
 - **抓眼**：一屏只留一个命名者（一个主导标题层级、一个视觉焦点），导语与卡片标题不重复标题主张。**封面已用视觉承担的主标题/栏目/副标题，正文用 `cover_carries_title: true` 省去**，不重复一遍。
@@ -116,7 +116,7 @@ description: 把任意来源（X 推文与 X 长文、视频、网页、PDF、Wo
 `reader_notes` 只进 HTML 文末，面向外部读者；`process_appendix` 只进 Markdown，供内部回溯。校对付在此层完成（多信源比对、专名、章节编号、缺失片段）。换渠道只改适配器，渲染层不动。
 
 ### S3 配图（默认代码画图）
-按 `references/figure-workflow.md`：先定每张图唯一要回答的问题，再选图型（封面／对比／流程／清单／路线图），用 `assets/figure_types/` 的四种 HTML/CSS 版式，经 `scripts/render_figures.py` 用无头浏览器 2 倍渲染，**逐张检查溢出与压字后复看**。图注写清图在回答什么；只画原文确有的事实与关系。**默认不调用生图工具，一律用 HTML/CSS 版式经无头浏览器 2× 渲染 PNG**（中文标注交给 DOM，既不乱码也不花积分）。只有用户明确指定 AI 插画时才改变，且须先说明积分消耗并取得同意；任何情况下都不用生图模型渲染中文标注。
+按 `references/figure-workflow.md`：先定每张图唯一要回答的问题，再选图型（封面／对比／流程／清单／路线图），用 `assets/figure_types/` 的四种 HTML/CSS 版式，经 `scripts/render_figures.py` 用无头浏览器 2 倍渲染，**逐张检查溢出与压字后复看**。图注写清图在回答什么；只画原文确有的事实与关系。**图内文字不用「她/他」作主语**，写人名或团队名——图会被单独转发（F01 在渲染前拦截）。**默认不调用生图工具，一律用 HTML/CSS 版式经无头浏览器 2× 渲染 PNG**（中文标注交给 DOM，既不乱码也不花积分）。只有用户明确指定 AI 插画时才改变，且须先说明积分消耗并取得同意；任何情况下都不用生图模型渲染中文标注。
 
 ### S4 排版
 `scripts/build_article.py` 读 `content.json` + 选定主题，生成全内联 HTML（图片 base64）与 Markdown。主题来自 `assets/themes/<id>/theme.json`（`--theme`，默认 `ink-tangerine`），或用 `--theme-path` 指向派生主题。同一份 IR 可换主题重复出稿。规范见 `references/layout-spec.md`，主题与派生见 `references/themes.md`。
@@ -155,7 +155,7 @@ python scripts/ci_check.py --html dist/wechat-article.html --md dist/article.md 
 | `references/figure-workflow.md` | 插图五层工作流、问题→图型、渲染与校验闭环 |
 | `scripts/probe_source.py` | 只读源探测，输出 `probe.json` |
 | `scripts/detect_options.py` | 检测环境／代理／模型／清晰度／后端 |
-| `scripts/render_figures.py` | 矢量式 HTML → 2x PNG 批量渲染 |
+| `scripts/render_figures.py` | 矢量式 HTML → 2x PNG 批量渲染；渲染前先跑 F01（图内不用代词）、浏览器失败自动回退 |
 | `scripts/build_article.py` | IR → 全内联 HTML + Markdown；`--theme` / `--theme-path` / `--list-themes` |
 | `scripts/derive_palette.py` | 主色 + 骨架 → palette、代码框六槽位、对比度；`--write-theme` / `--audit-themes` |
 | `scripts/validate_article.py` | 27 条 lint（S01–S22 / C01–C05），支持 `--strict` / `--md` / `--ir` |

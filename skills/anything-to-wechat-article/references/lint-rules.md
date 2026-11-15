@@ -63,6 +63,14 @@ python scripts/ci_check.py --html ... --config lint-config.json
 | C04 | Markdown 过程附录 | `--md` 文件含「整理过程与回溯」 | 便于落盘回溯（IR 的 `process_appendix`） |
 | C05 | 信息卡不泄露内部口径 | 前 1200 字不含「口径／拍板／S0-／reader_notes」等 | 口径属内部信息，应放存档版 |
 
+## 配图源文本：S3 阶段（`render_figures.py` 执行，不进 27 条 lint）
+
+lint 的输入是文章 HTML，图内文字已经变成像素、读不到；所以图内文字另有一条前置检查，在渲染前跑，不通过就不出图。
+
+| ID | 规则 | 判定 | 依据 |
+|---|---|---|---|
+| F01 | 图里不用代词作主语 | 图 HTML 的可见文字不含 `她/他/他们/她们`（`其他/其它` 不算，`<style>`/注释不算）；确属引语可写 `<!-- allow-pronoun: 理由 -->` | 图会被单独截图转发，脱离正文就没有指代对象；须写人名/团队/产品名 |
+
 ## 调整阈值
 
 `lint-config.json` 可覆盖：`min_inline_styles`、`min_paragraphs`、`min_component_inline_rate`、`min_glossary_notes`、`min_caveat_words`、`foot_bullets_min/max`、`min_png_width`、`min_zh_chars`、`internal_jargon`。

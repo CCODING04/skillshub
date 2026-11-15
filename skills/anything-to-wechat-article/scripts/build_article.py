@@ -268,11 +268,17 @@ def build_html(ir, theme, b64_map):
                     ordered = b.get("ordered", False)
                     indent = float(b.get("indent", 0) or 0)
                     extra = f"margin-left:{indent:g}em;" if indent > 0 else ""
-                    for i, item in enumerate(b.get("items", []), 1):
+                    items = b.get("items", [])
+                    for i, item in enumerate(items, 1):
+                        # 编号单独占一列（宽度 = 主题里的悬挂缩进），不与正文挤在同一行；
+                        # 末条补足段后间距，列表才不会和下一段粘成一片。
                         prefix = f"{i:02d}" if ordered else "·"
-                        parts.append('<p style="' + theme.style("list_item") + extra + '"><strong style="'
-                                     + theme.style("highlight") + '">' + prefix + "</strong>　"
-                                     + rnd.rich(item) + "</p>")
+                        tail = "margin-bottom:22px;" if i == len(items) else ""
+                        num = ('<span style="display:inline-block;width:30px;text-indent:0;'
+                               'color:' + theme.tokens["accent"] + ';font-size:13px;'
+                               'font-weight:700;letter-spacing:.5px;">' + prefix + "</span>")
+                        parts.append('<p style="' + theme.style("list_item") + extra + tail + '">'
+                                     + num + rnd.rich(item) + "</p>")
                 elif kind == "quote":
                     parts.append(rnd.quote(b.get("text", "")))
                 elif kind == "card":
