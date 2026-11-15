@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Resolve the Python interpreter for this skill (first-use rule).
 
-User rule 2026-11-15:
+Rule:
 - A remembered path wins; the Agent asked for it once and stored it here.
 - If the OS has a usable default python/python3 -> use it, do NOT ask.
 - If uv or another Python environment manager is installed -> do NOT ask.

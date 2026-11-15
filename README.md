@@ -1,6 +1,6 @@
 # skillshub
 
-可复用的 Agent Skill 集合。当前收录 **1 个 skill** · **v1（第一版）**。
+可复用的 Agent Skill 集合。当前收录 **1 个 skill** · **v1**。
 
 ## 收录
 
@@ -36,6 +36,3 @@ python scripts/ci_check.py --html dist/wechat-article.html --md dist/article.md 
   --ir content.json --theme ink-tangerine --out dist
 ```
 
-## 版本
-
-**v1**。后续变更写在 commit message 里，README 不保留历史记录。

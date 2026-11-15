@@ -165,7 +165,6 @@ python scripts/ci_check.py --html dist/wechat-article.html --md dist/article.md 
 | `references/guardrails.md` | 规则与反例：触发条件、执行动作、判断线、明确禁止 |
 | `references/rule-governance.md` | 规则分层、可固化边界、冲突信号、汇报与豁免机制 |
 | `references/lint-rules.md` | 硬约束规则表（ID、级别、判定、修复） |
-| `references/retrospective.md` | 范式流程复盘：做对了什么、坑在哪、如何固化 |
 | `assets/rule-registry.json` | 规则注册表（层级／来源／scope／有效期／provisional） |
 | `assets/waivers.example.json` | 由人签字的豁免记录格式 |
 | `assets/themes/` | 六套内置主题（语义 token + 页面参数 + 组件样式 + HTML 骨架） |
