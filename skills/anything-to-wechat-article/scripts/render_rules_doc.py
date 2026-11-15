@@ -2,8 +2,9 @@
 """Render references/rules.md from the rule registry.
 
 The registry is the single source of truth for which rules exist; the code is the
-single source of truth for whether they pass. This script merges the two so the
-markdown can never drift from either. CI re-renders and compares.
+single source of truth for whether they pass; `ci_check.FIX` is the single source
+of truth for how to fix a failure. This script merges the three so the markdown can
+never drift from any of them. CI re-renders and compares.
 """
 import argparse
 import json
@@ -38,8 +39,9 @@ def render(registry):
     out = [
         "# 规则清单",
         "",
-        "> 本文件由 `scripts/render_rules_doc.py` 从 `assets/rule-registry.json` 生成，",
-        "> 不要手改。改规则请改注册表或代码，然后重跑生成脚本；`ci_check.py` 会比对两者是否一致。",
+        "> 本文件由 `scripts/render_rules_doc.py` 生成：规则清单来自 `assets/rule-registry.json`，",
+        "> 修复文案来自 `scripts/ci_check.py` 的 `FIX`。不要手改；改规则请改这两处之一，",
+        "> 然后重跑生成脚本。`ci_check.py` 会比对文件与注册表是否一致，不一致即 FAIL。",
         "",
         f"共 {len(rules)} 条。规则分五层，层级决定它能不能被豁免：",
         "",
@@ -48,7 +50,7 @@ def render(registry):
         out.append(f"- **{lv}** {desc}")
     out += ["", "| ID | 层级 | 要求 | 不满足时怎么改 | 执行位置 |", "|---|---|---|---|---|"]
     for r in rules:
-        fix = r.get("fix") or FIX.get(r["id"], "见脚本输出的定位信息")
+        fix = FIX.get(r["id"]) or "见脚本输出的定位信息"
         title = r["title"].replace("|", "\\|")
         out.append(f"| {r['id']} | {r['level']} | {title} | {fix} | {enforced(r)} |")
     out += ["", "## 待复审", ""]

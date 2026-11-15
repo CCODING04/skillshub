@@ -3,6 +3,9 @@
 
 Exit 0 = PASS, 1 = FAIL, 2 = NEEDS_DECISION (rule conflict, human must arbitrate),
 3 = input/registry error. A failing or undecided gate means: DO NOT DELIVER.
+
+`FIX` below is the single place "how to fix it" is written: both the report and
+the generated references/rules.md read it, so the two can never disagree.
 """
 import argparse
 import json
@@ -44,6 +47,7 @@ FIX = {
     "C03": "文末来源说明保持 2–6 条，含来源标识与书面化/非逐字声明",
     "C04": "在 content.json 写 process_appendix，让 article.md 带上「整理过程与回溯」",
     "C05": "把内部口径移到 Markdown 附录，不要放读者可见的信息卡",
+    "F01": "图里写清主体：用姓名／团队名／产品名替换「她／他／他们」，图会被单独转发",
 }
 
 

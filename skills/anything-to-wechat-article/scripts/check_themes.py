@@ -72,7 +72,7 @@ def check_one(path):
     if unknown:
         errors.append("unresolved template tokens: " + ", ".join(unknown))
 
-    # contrast gates (G16 / G15 basics); label-vs-dark-header is audited by derive_palette.py
+    # contrast gates; label-vs-dark-header is audited by derive_palette.py --audit-themes
     def ratio(fg, bg):
         try:
             return round(contrast(fg, bg), 2)

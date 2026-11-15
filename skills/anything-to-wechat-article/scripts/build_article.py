@@ -283,8 +283,8 @@ def build_html(ir, theme, b64_map):
     parts = []
     emit_figures(parts, figs, rnd, "top")
 
-    # G17: the cover image may already carry the headline / kicker / subtitle.
-    # In that case the visual replaces that text; do not repeat it in the body.
+    # The cover may already carry the headline / kicker / subtitle. In that case the
+    # visual replaces that text — do not repeat it in the body (`cover_carries_title`).
     compact_head = bool(ir.get("cover_carries_title") or
                         (ir.get("decisions") or {}).get("cover_carries_title"))
     if not compact_head:

@@ -162,6 +162,7 @@ python scripts/ci_check.py --html dist/wechat-article.html --md dist/article.md 
 | `references/decisions.md` | S0-B 决定项与提问模板 |
 | `references/feasibility.md` | S0-A 调研规范、`feasibility.json` 结构 |
 | `scripts/probe_source.py` | 只读源探测，输出 `probe.json` |
+| `scripts/resolve_python.py` | 判定本机解释器，必要时记住到 `~/.skillshub/python.json` |
 | `scripts/detect_options.py` | 检测环境／代理／模型／清晰度／后端 |
 | `scripts/render_figures.py` | HTML/CSS → 2x PNG；渲染前跑 F01，浏览器失败自动回退 |
 | `scripts/build_article.py` | IR → 全内联 HTML + Markdown |

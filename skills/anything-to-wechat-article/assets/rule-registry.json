@@ -636,8 +636,7 @@
         "图内用代词",
         "她团队",
         "讲者团队即可"
-      ],
-      "fix": "把「她/他」换成具体人名、团队名或产品名；引语确需保留原话时，在图表 HTML 里写 <!-- allow-pronoun: 理由 -->"
+      ]
     },
     {
       "id": "S23",
@@ -693,7 +692,6 @@
       "id": "S25",
       "level": "L1",
       "title": "Markdown 归档包含全部图注",
-      "fix": "检查 build_article.py 的 Markdown 分支是否处理了这个块类型（aside 必须递归）",
       "source": {
         "type": "self_audit",
         "evidence": "aside 上线后 HTML 正常、article.md 里图 4 整块丢失，两条出口不一致",
@@ -719,7 +717,6 @@
       "id": "S26",
       "level": "L1",
       "title": "图注在图片下方、区块之外",
-      "fix": "把图注移出区块容器，紧跟图片之后；框里只放图本身",
       "source": {
         "type": "user_feedback",
         "evidence": "区块里的图注被收进异色框，与全篇其它图注不是一种东西",

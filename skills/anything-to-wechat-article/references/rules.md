@@ -1,7 +1,8 @@
 # 规则清单
 
-> 本文件由 `scripts/render_rules_doc.py` 从 `assets/rule-registry.json` 生成，
-> 不要手改。改规则请改注册表或代码，然后重跑生成脚本；`ci_check.py` 会比对两者是否一致。
+> 本文件由 `scripts/render_rules_doc.py` 生成：规则清单来自 `assets/rule-registry.json`，
+> 修复文案来自 `scripts/ci_check.py` 的 `FIX`。不要手改；改规则请改这两处之一，
+> 然后重跑生成脚本。`ci_check.py` 会比对文件与注册表是否一致，不一致即 FAIL。
 
 共 32 条。规则分五层，层级决定它能不能被豁免：
 
@@ -18,7 +19,7 @@
 | C03 | L2 | 文末来源说明简洁可溯源 | 文末来源说明保持 2–6 条，含来源标识与书面化/非逐字声明 | `validate_article.py`（CI 门禁内容级，`--strict` 下阻塞） |
 | C04 | L2 | Markdown 带整理过程附录 | 在 content.json 写 process_appendix，让 article.md 带上「整理过程与回溯」 | `validate_article.py`（CI 门禁内容级，`--strict` 下阻塞） |
 | C05 | L2 | 信息卡只放读者需要的信息 | 把内部口径移到 Markdown 附录，不要放读者可见的信息卡 | `validate_article.py`（CI 门禁内容级，`--strict` 下阻塞） |
-| F01 | L1 | 图里写清主体，不用代词 | 把「她/他」换成具体人名、团队名或产品名；引语确需保留原话时，在图表 HTML 里写 <!-- allow-pronoun: 理由 --> | `render_figures.py`（渲染前拦截，不通过不出图） |
+| F01 | L1 | 图里写清主体，不用代词 | 图里写清主体：用姓名／团队名／产品名替换「她／他／他们」，图会被单独转发 | `render_figures.py`（渲染前拦截，不通过不出图） |
 | S01 | L0 | 样式全部内联在元素上 | 移除 <style> 标签，全部样式写成内联 style | `validate_article.py`（CI 门禁 error 级，`--strict` 下 warning 也阻塞） |
 | S02 | L0 | 样式只走 style 属性 | 移除 class，改用内联 style | `validate_article.py`（CI 门禁 error 级，`--strict` 下 warning 也阻塞） |
 | S03 | L0 | 只使用微信编辑器保留的标签 | 替换 section/figure/figcaption/script 等微信不保留的标签 | `validate_article.py`（CI 门禁 error 级，`--strict` 下 warning 也阻塞） |
@@ -43,8 +44,8 @@
 | S22 | L1 | 相邻两图之间有一段正文 | 两张图挨在一起了：在它们之间补一段正文（图注不算过渡），或删掉信息重复的那张 | `validate_article.py`（CI 门禁 error 级，`--strict` 下 warning 也阻塞） |
 | S23 | L1 | 图注不复述它前面的小标题 | 图注换个说法：写出这张图在说什么，命名交给它上面的小标题 | `validate_article.py`（CI 门禁 error 级，`--strict` 下 warning 也阻塞） |
 | S24 | L1 | 区块不超过两处且不嵌套 | 区块最多两处且不能套叠：只把确实需要分开的一组内容收进框 | `validate_article.py`（CI 门禁 error 级，`--strict` 下 warning 也阻塞） |
-| S25 | L1 | Markdown 归档包含全部图注 | 检查 build_article.py 的 Markdown 分支是否处理了这个块类型（aside 必须递归） | `validate_article.py`（CI 门禁 error 级，`--strict` 下 warning 也阻塞） |
-| S26 | L1 | 图注在图片下方、区块之外 | 把图注移出区块容器，紧跟图片之后；框里只放图本身 | `validate_article.py`（CI 门禁 error 级，`--strict` 下 warning 也阻塞） |
+| S25 | L1 | Markdown 归档包含全部图注 | Markdown 归档缺图：检查 build_article.py 的 Markdown 分支是否漏了某个块类型（aside 要递归） | `validate_article.py`（CI 门禁 error 级，`--strict` 下 warning 也阻塞） |
+| S26 | L1 | 图注在图片下方、区块之外 | 图注移出区块：紧跟图片之后、框外，和全篇其它图注同一层 | `validate_article.py`（CI 门禁 error 级，`--strict` 下 warning 也阻塞） |
 
 ## 待复审
 

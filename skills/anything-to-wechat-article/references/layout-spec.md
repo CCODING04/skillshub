@@ -30,7 +30,7 @@
 | 代码 | `code`（六槽位 + label / header_bg / dots / radius） |
 | 骨架 | `html.head / takeaways_head / takeaway_item / closing / source / figure / figure_caption / table / code` |
 
-`aside` 是「区块」：把一组内容（通常一张图加一句说明）收进带边框的容器，用来和上下文分开。它承担分组，不承担强调；全篇最多两处、不嵌套（S24）。图与图注是两个槽位（ / ），因为图注要留在框外（S26）。
+`aside` 是「区块」：把一组内容（通常一张图加一句说明）收进带边框的容器，用来和上下文分开。它承担分组，不承担强调；全篇最多两处、不嵌套（S24）。图与图注是两个槽位（`figure` / `figure_caption`），因为图注要留在框外（S26）。
 
 ## 主题文件
 
