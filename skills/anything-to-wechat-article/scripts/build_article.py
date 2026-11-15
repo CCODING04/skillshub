@@ -238,8 +238,20 @@ def build_html(ir, theme, b64_map):
         rows = ["<strong style=\"" + theme.style("meta_label") + "\">" + esc(m["label"]) + "</strong>　"
                 + esc(m["value"]) for m in ir["meta"]]
         parts.append('<div style="' + theme.style("meta") + '">' + "<br>".join(rows) + "</div>")
-    for text in ir.get("lead", []):
-        parts.append(rnd.para(text, "lead"))
+    for item in ir.get("lead", []):
+        # lead accepts plain strings or block objects (tip/card/quote) for emphasis
+        if isinstance(item, dict):
+            kind, text = item.get("type", "p"), item.get("text", "")
+            if kind == "tip":
+                parts.append(rnd.tip(text))
+            elif kind == "card":
+                parts.append(rnd.card(text))
+            elif kind == "quote":
+                parts.append(rnd.quote(text))
+            else:
+                parts.append(rnd.para(text, "lead"))
+        else:
+            parts.append(rnd.para(item, "lead"))
     parts.append(rnd.divider())
 
     for index, sec in enumerate(ir.get("sections", []), 1):
@@ -254,9 +266,11 @@ def build_html(ir, theme, b64_map):
                     parts.append('<p style="' + theme.style("h3") + '">' + esc(b.get("text", "")) + "</p>")
                 elif kind == "list":
                     ordered = b.get("ordered", False)
+                    indent = float(b.get("indent", 0) or 0)
+                    extra = f"margin-left:{indent:g}em;" if indent > 0 else ""
                     for i, item in enumerate(b.get("items", []), 1):
                         prefix = f"{i:02d}" if ordered else "·"
-                        parts.append('<p style="' + theme.style("list_item") + '"><strong style="'
+                        parts.append('<p style="' + theme.style("list_item") + extra + '"><strong style="'
                                      + theme.style("highlight") + '">' + prefix + "</strong>　"
                                      + rnd.rich(item) + "</p>")
                 elif kind == "quote":
@@ -317,7 +331,9 @@ def build_md(ir, fig_files):
     for f in ir.get("figures", []):
         if f.get("position") == "top" and f["id"] in fig_files:
             L += ["![" + f.get("caption", "图示") + "](" + fig_files[f["id"]] + ")", ""]
-    L += list(ir.get("lead", [])) + [""]
+    lead_lines = [(x.get("text", "") if isinstance(x, dict) else x)
+                  for x in ir.get("lead", [])]
+    L += lead_lines + [""]
     for sec in ir.get("sections", []):
         L += ["## " + str(sec.get("no", "")) + " " + sec.get("heading", ""), ""]
         if sec.get("blocks"):
@@ -341,6 +357,12 @@ def build_md(ir, fig_files):
                     for row in b.get("rows", []):
                         L += ["| " + " | ".join(row) + " |"]
                     L.append("")
+                elif kind == "figure":
+                    fid = b.get("id")
+                    for f in ir.get("figures", []):
+                        if f["id"] == fid and fid in fig_files:
+                            L += ["![" + f.get("caption", "图示") + "](" + fig_files[fid] + ")",
+                                  f.get("caption", ""), ""]
         else:
             L += list(sec.get("paragraphs", [])) + [""]
             if sec.get("quote"):
