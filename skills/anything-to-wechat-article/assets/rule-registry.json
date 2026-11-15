@@ -1,0 +1,591 @@
+{
+  "schema_version": "1.0",
+  "updated_at": "2026-11-13",
+  "levels": {
+    "L0": "平台事实：永不可豁免，变更须重新实测",
+    "L1": "结构契约：可修订但需版本化与范式回归测试",
+    "L2": "可计量启发式：数值可固化，适用性须人确认，允许签字豁免"
+  },
+  "rules": [
+    {
+      "id": "S01",
+      "level": "L0",
+      "title": "禁止 style 标签",
+      "source": {
+        "type": "platform_fact",
+        "evidence": "微信编辑器过滤 style 标签",
+        "verified_at": "2026-11-12"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 180,
+      "waiver_allowed": false,
+      "provisional": false
+    },
+    {
+      "id": "S02",
+      "level": "L0",
+      "title": "禁止 class 属性",
+      "source": {
+        "type": "platform_fact",
+        "evidence": "微信编辑器过滤 class",
+        "verified_at": "2026-11-12"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 180,
+      "waiver_allowed": false,
+      "provisional": false
+    },
+    {
+      "id": "S03",
+      "level": "L0",
+      "title": "禁用 section/figure/figcaption/script 等标签",
+      "source": {
+        "type": "platform_fact",
+        "evidence": "微信粘贴后塌陷或过滤",
+        "verified_at": "2026-11-12"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 180,
+      "waiver_allowed": false,
+      "provisional": false
+    },
+    {
+      "id": "S04",
+      "level": "L1",
+      "title": "标签白名单",
+      "source": {
+        "type": "engineering_contract",
+        "evidence": "范式稿实测标签集合",
+        "verified_at": "2026-11-12"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 90,
+      "waiver_allowed": false,
+      "provisional": false
+    },
+    {
+      "id": "S05",
+      "level": "L0",
+      "title": "不得引用外部资源",
+      "source": {
+        "type": "platform_fact",
+        "evidence": "外链字体/JS/图片在公众号不可靠",
+        "verified_at": "2026-11-12"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 180,
+      "waiver_allowed": false,
+      "provisional": false
+    },
+    {
+      "id": "S06",
+      "level": "L1",
+      "title": "内联样式数下限",
+      "source": {
+        "type": "engineering_contract",
+        "evidence": "范式稿 111+ 处内联样式",
+        "verified_at": "2026-11-13"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 90,
+      "waiver_allowed": false,
+      "provisional": false
+    },
+    {
+      "id": "S07",
+      "level": "L1",
+      "title": "至少一张配图",
+      "source": {
+        "type": "engineering_contract",
+        "evidence": "用户确认 4 图全套为默认交付",
+        "verified_at": "2026-11-12"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 90,
+      "waiver_allowed": false,
+      "provisional": false
+    },
+    {
+      "id": "S08",
+      "level": "L1",
+      "title": "图片数与 base64 数一致",
+      "source": {
+        "type": "engineering_contract",
+        "evidence": "图片双轨约定",
+        "verified_at": "2026-11-12"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 90,
+      "waiver_allowed": false,
+      "provisional": false
+    },
+    {
+      "id": "S09",
+      "level": "L1",
+      "title": "图片数符合预期",
+      "source": {
+        "type": "engineering_contract",
+        "evidence": "IR figures 清单",
+        "verified_at": "2026-11-12"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 90,
+      "waiver_allowed": false,
+      "provisional": false
+    },
+    {
+      "id": "S10",
+      "level": "L1",
+      "title": "图片 width:100%",
+      "source": {
+        "type": "engineering_contract",
+        "evidence": "移动端适配",
+        "verified_at": "2026-11-12"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 90,
+      "waiver_allowed": false,
+      "provisional": false
+    },
+    {
+      "id": "S11",
+      "level": "L1",
+      "title": "至少一处引用块",
+      "source": {
+        "type": "paradigm",
+        "evidence": "范式稿 7-10 个金句引用块",
+        "verified_at": "2026-11-12"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 90,
+      "waiver_allowed": false,
+      "provisional": false
+    },
+    {
+      "id": "S12",
+      "level": "L1",
+      "title": "无未替换占位符",
+      "source": {
+        "type": "engineering_contract",
+        "evidence": "模板渲染完整性",
+        "verified_at": "2026-11-12"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 90,
+      "waiver_allowed": false,
+      "provisional": false
+    },
+    {
+      "id": "S13",
+      "level": "L1",
+      "title": "必须有资料来源与整理说明",
+      "source": {
+        "type": "engineering_contract",
+        "evidence": "来源可追溯约定",
+        "verified_at": "2026-11-12"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 90,
+      "waiver_allowed": false,
+      "provisional": false
+    },
+    {
+      "id": "S14",
+      "level": "L1",
+      "title": "组件级内联覆盖率",
+      "source": {
+        "type": "engineering_contract",
+        "evidence": "外部产物实测 99.47%",
+        "verified_at": "2026-11-13"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 90,
+      "waiver_allowed": false,
+      "provisional": false
+    },
+    {
+      "id": "S15",
+      "level": "L1",
+      "title": "段落密度下限",
+      "source": {
+        "type": "engineering_contract",
+        "evidence": "禁止用 br 堆排版",
+        "verified_at": "2026-11-13"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 90,
+      "waiver_allowed": false,
+      "provisional": false
+    },
+    {
+      "id": "S16",
+      "level": "L1",
+      "title": "每张图片必须有 alt",
+      "source": {
+        "type": "engineering_contract",
+        "evidence": "无障碍与图注",
+        "verified_at": "2026-11-13"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 90,
+      "waiver_allowed": false,
+      "provisional": false
+    },
+    {
+      "id": "S17",
+      "level": "L1",
+      "title": "配图为 2x 高清 PNG",
+      "source": {
+        "type": "engineering_contract",
+        "evidence": "render_figures.py --scale 2",
+        "verified_at": "2026-11-13"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 90,
+      "waiver_allowed": false,
+      "provisional": false
+    },
+    {
+      "id": "S18",
+      "level": "L1",
+      "title": "每张图后必须有图注",
+      "source": {
+        "type": "engineering_contract",
+        "evidence": "图注写清图在回答什么",
+        "verified_at": "2026-11-13"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 90,
+      "waiver_allowed": false,
+      "provisional": false
+    },
+    {
+      "id": "S19",
+      "level": "L1",
+      "title": "禁止连续 br",
+      "source": {
+        "type": "engineering_contract",
+        "evidence": "伪段落检测",
+        "verified_at": "2026-11-13"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 90,
+      "waiver_allowed": false,
+      "provisional": false
+    },
+    {
+      "id": "S20",
+      "level": "L1",
+      "title": "正文不得出现内部流程术语",
+      "source": {
+        "type": "engineering_contract",
+        "evidence": "外部产物 B 正文出现「拍板」",
+        "verified_at": "2026-11-13"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 90,
+      "waiver_allowed": false,
+      "provisional": false
+    },
+    {
+      "id": "S21",
+      "level": "L1",
+      "title": "正文中文字符下限",
+      "source": {
+        "type": "engineering_contract",
+        "evidence": "防止 IR 漏 sections",
+        "verified_at": "2026-11-13"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 90,
+      "waiver_allowed": false,
+      "provisional": false
+    },
+    {
+      "id": "C01",
+      "level": "L2",
+      "title": "作者/讲者履历引子",
+      "source": {
+        "type": "user_feedback",
+        "evidence": "2026-11-12 16:24 用户反馈：演讲类文章应介绍讲者履历",
+        "verified_at": "2026-11-12"
+      },
+      "scope": {
+        "source_kinds": [
+          "x-video",
+          "talk",
+          "interview",
+          "speech"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 30,
+      "waiver_allowed": true,
+      "provisional": true,
+      "derived_from_feedback": "单次反馈，未经第二类来源验证；对 X 长文是否适用待确认",
+      "conflict_keywords": [
+        "不要讲者介绍",
+        "不用介绍作者",
+        "省略履历",
+        "不写作者背景"
+      ]
+    },
+    {
+      "id": "C02",
+      "level": "L2",
+      "title": "外文术语中文简注",
+      "source": {
+        "type": "user_feedback",
+        "evidence": "2026-11-12 16:24 用户反馈：brownfield 有译名而 greenfield 没有",
+        "verified_at": "2026-11-12"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 30,
+      "waiver_allowed": true,
+      "provisional": true,
+      "derived_from_feedback": "单次反馈；阈值 8 来自范式稿 29 处与两份外部产物 0/5 处的对比，需复审",
+      "conflict_keywords": [
+        "不补术语",
+        "不要解释术语",
+        "保留英文原词",
+        "不需要简注"
+      ]
+    },
+    {
+      "id": "C03",
+      "level": "L2",
+      "title": "文末来源说明形态",
+      "source": {
+        "type": "user_feedback",
+        "evidence": "2026-11-12 16:24 用户反馈：面向外部读者要简洁",
+        "verified_at": "2026-11-12"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 30,
+      "waiver_allowed": true,
+      "provisional": true,
+      "derived_from_feedback": "单次反馈；2-6 条为约定值",
+      "conflict_keywords": [
+        "文末从简",
+        "不要来源说明"
+      ]
+    },
+    {
+      "id": "C04",
+      "level": "L2",
+      "title": "Markdown 过程附录",
+      "source": {
+        "type": "user_feedback",
+        "evidence": "2026-11-12 16:24 用户反馈：详细过程放 md 便于回溯",
+        "verified_at": "2026-11-12"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 30,
+      "waiver_allowed": true,
+      "provisional": true,
+      "derived_from_feedback": "单次反馈；非所有交付都需要存档版",
+      "conflict_keywords": [
+        "不需要过程附录",
+        "不要 markdown 存档",
+        "不用回溯"
+      ]
+    },
+    {
+      "id": "C05",
+      "level": "L2",
+      "title": "信息卡不泄露内部口径",
+      "source": {
+        "type": "user_feedback",
+        "evidence": "2026-11-13 审核外部产物 B 发现信息卡写「口径」",
+        "verified_at": "2026-11-13"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 30,
+      "waiver_allowed": true,
+      "provisional": true,
+      "derived_from_feedback": "单次审核发现；是否永远禁止待确认",
+      "conflict_keywords": [
+        "信息卡保留口径",
+        "信息卡写口径"
+      ]
+    }
+  ],
+  "note": "主题由 assets/themes/ 统一管理（N1）；规则阈值不随主题变化。规则变更须跑 check_themes.py + ci_check.py 回归。"
+}

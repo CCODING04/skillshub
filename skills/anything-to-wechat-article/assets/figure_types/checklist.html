@@ -1,0 +1,33 @@
+<!doctype html>
+<!-- 范式示例 | 1080x600 清单/划除卡片：只划掉讲者本人说的选项，并标注「没有标准答案」 | 固定画布、全内联样式、无外链、中文用系统字体栈 --><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}html,body{margin:0;padding:0;width:1080px;height:600px;overflow:hidden}
+body{background:#FBFAF7;font-family:"Microsoft YaHei","PingFang SC",sans-serif;color:#20344F;padding:46px 60px}
+.kicker{font-size:15px;letter-spacing:2px;color:#E27145;font-weight:700}
+h2{margin:14px 0 8px;font-size:35px;letter-spacing:.5px}
+.sub{margin:0 0 30px;font-size:17px;color:#8A94A0}
+.grid{display:flex;gap:18px}
+.cell{flex:1;height:246px;background:#fff;border:1px solid #E8E4DD;border-radius:16px;padding:22px;position:relative;box-shadow:0 8px 22px rgba(32,52,79,.05)}
+.num{font-size:14px;color:#A6AEB7;letter-spacing:1px}
+.icon{width:52px;height:52px;border-radius:14px;background:#F3EFE9;margin:16px 0 18px;display:flex;align-items:center;justify-content:center;font-size:26px;color:#20344F}
+.name{font-size:22px;font-weight:700;margin-bottom:10px}
+.why{font-size:15px;color:#8A94A0;line-height:1.6}
+.cell.cut{background:#FAF9F7;border-style:dashed;opacity:.72}
+.cell.cut:after{content:"";position:absolute;left:16px;right:16px;top:52%;height:3px;background:#E27145;transform:rotate(-9deg);border-radius:2px}
+.cell.keep{border:2px solid #2E7D6B;box-shadow:0 10px 26px rgba(46,125,107,.12)}
+.cell.keep .icon{background:#E8F3F0;color:#2E7D6B}
+.badge{position:absolute;right:14px;top:14px;font-size:13px;padding:5px 11px;border-radius:20px;background:#2E7D6B;color:#fff}
+.bottom{margin-top:28px;padding-top:20px;border-top:1px solid #E8E4DD;display:flex;justify-content:space-between;align-items:center;font-size:17px}
+.bottom b{color:#E27145;font-size:20px}
+.hint{color:#8A94A0;font-size:15px}
+</style></head><body>
+<div class="kicker">现场互动 · 02</div>
+<h2>如果是你，最想去掉哪一个？</h2>
+<p class="sub">「帮我做一个记下生活的工具」——两分钟后，一个理由充分的完整答案出现了</p>
+<div class="grid">
+  <div class="cell keep"><div class="num">01</div><div class="icon">◔</div><div class="name">心情分数</div><div class="why">「可以看到趋势」</div><div class="badge">他留下</div></div>
+  <div class="cell cut"><div class="num">02</div><div class="icon">▤</div><div class="name">连续记录天数</div><div class="why">「可以养成习惯」</div></div>
+  <div class="cell cut"><div class="num">03</div><div class="icon">◷</div><div class="name">每日提醒</div><div class="why">「可以坚持记录」</div></div>
+  <div class="cell cut"><div class="num">04</div><div class="icon">▦</div><div class="name">每周报告</div><div class="why">「可以帮助反思」</div></div>
+</div>
+<div class="bottom"><span><b>「我想留下生活，不是替生活添加一份作业。」</b></span><span class="hint">这里没有标准答案 · 你删掉的那一项，就是你的形状</span></div>
+</body></html>

@@ -1,0 +1,179 @@
+{
+  "schema_version": "1.0",
+  "source": {
+    "kind": "x-video",
+    "url": "https://x.com/example/status/0000000000000000000",
+    "author": "Ryo Lu（原作者，直接附上；找不到时 S0-B 询问是否需要 author 字段）",
+    "captured_at": "2026-11-05",
+    "completeness_note": "片头约 1 分钟未录入"
+  },
+  "decisions": {
+    "angle": "结构重整，非逐字稿",
+    "title_direction": "以演讲的核心提问作标题",
+    "quote_style": "书面化，保留原意",
+    "length": "约 3000 字",
+    "figures": 2,
+    "publish": false,
+    "theme": "ink-tangerine",
+    "author_policy": "source.author 已给出，不再询问；若来源中找不到原作者，S0-B 询问是否需要补 author",
+    "image_mode": "code-drawn (HTML/CSS -> PNG)；默认不调用生图工具，除非用户指定",
+    "cover_carries_title": true
+  },
+  "title": "当我们什么都能做，还知道自己想要什么吗？",
+  "subtitle": "一场不谈「该不该用 AI」的演讲",
+  "kicker": "AI ENGINEER SHANGHAI 2026 · 主题演讲整理",
+  "meta": [
+    {
+      "label": "讲者",
+      "value": "Ryo Lu ｜ Cursor 创始设计师"
+    },
+    {
+      "label": "场合",
+      "value": "AI Engineer Shanghai 2026 · 主舞台 · 2026-11-05"
+    },
+    {
+      "label": "时长",
+      "value": "21 分 24 秒（片头约 1 分钟未录入）"
+    }
+  ],
+  "lead": [
+    "讲者 Ryo Lu 此前在 Meta 做 React Compiler，后来加入 Cursor，现在负责 Agent 方向；这场分享不谈模型排名，只谈怎么让人敢放手。",
+    "别人用新模型做出了一个东西，第一反应是「哇，好厉害」——但 **IR（中间表示）**、**lint（静态检查）** 这类工程约束才决定成稿能不能复用。",
+    "把 **theme（主题）** 与内容分开，同一份 **PNG（位图配图）** 就能换六套皮；**CI（持续集成）** 负责在交付前拦住退化。"
+  ],
+  "sections": [
+    {
+      "no": "01",
+      "heading": "当做事变成证明自己",
+      "paragraphs": [
+        "当机器也能做到，不安就不只是关于工作，还多了一个私人的问题。",
+        "上面这一节用 `blocks` 演示全部组件类型；第 02 节保留旧的 `paragraphs`/`quote`/`cards` 写法，两种格式都兼容。"
+      ],
+      "blocks": [
+        {
+          "type": "p",
+          "text": "焦虑很大一部分来自一个习惯：用「自己能做什么」来证明「自己是谁」。"
+        },
+        {
+          "type": "h3",
+          "text": "一个可以自查的最小例子"
+        },
+        {
+          "type": "list",
+          "ordered": true,
+          "items": [
+            "先停一下：这里面哪个决定，我自己还没想过？",
+            "把「你觉得呢」写进请求，而不是只等一个完整答案",
+            "挑一个在乎的地方，改一小处试一试"
+          ]
+        },
+        {
+          "type": "quote",
+          "text": "不必先证明自己做得比谁好，才有资格继续喜欢做东西。"
+        },
+        {
+          "type": "code",
+          "lang": "python",
+          "lines": [
+            "# 示例：把「先停一下」写进流程",
+            "def review(answer):",
+            "    **question** = which_decision_is_still_mine(answer)",
+            "    return revise(answer, question)"
+          ]
+        },
+        {
+          "type": "table",
+          "headers": [
+            "环节",
+            "谁负责",
+            "产物"
+          ],
+          "rows": [
+            [
+              "可行性调研",
+              "模型（只读）",
+              "调研结论"
+            ],
+            [
+              "内容方向与主题",
+              "人",
+              "decisions 记录"
+            ],
+            [
+              "校验交付",
+              "门禁",
+              "报告"
+            ]
+          ]
+        },
+        {
+          "type": "tip",
+          "text": "代码块、清单、表格都是可选组件；缺省就不渲染。"
+        }
+      ]
+    },
+    {
+      "no": "02",
+      "heading": "答案很完整，不代表我真的想过",
+      "paragraphs": [
+        "工具会不会太快，把「停下来想一下」这整个过程跳过了？",
+        "最难察觉的不是明显的错误，而是被完整答案盖过去、还没机会形成的问题。"
+      ],
+      "quote": "答案完成了，不代表我的思考也完成了。",
+      "cards": [
+        "先停一下：这里面哪个决定，我自己还没想过？",
+        "改一小处：挑一个在乎的地方动手试一试"
+      ],
+      "figures": [
+        "FIG2"
+      ]
+    }
+  ],
+  "figures": [
+    {
+      "id": "FIG1",
+      "type": "cover",
+      "question": "这篇文章讲什么",
+      "file": "fig1.png",
+      "caption": "封面 · 主题与场合",
+      "position": "top"
+    },
+    {
+      "id": "FIG2",
+      "type": "comparison",
+      "question": "两种做法差在哪",
+      "file": "fig2.png",
+      "caption": "图 1 ｜ 两种交互隐喻的对照",
+      "position": "after_section:02"
+    }
+  ],
+  "takeaways": [
+    "先停一下，问哪个决定自己还没想过",
+    "挑一个在乎的地方，改一小处试一试",
+    "有机会的话，拿给另一个人看"
+  ],
+  "closing_quote": "我想要的不是一个替我过完人生的工具，而是在它的帮助下，慢慢找回原本的自己。",
+  "sources": [
+    "来源链接或文献 1",
+    "官方页面或原始讲稿（如有）"
+  ],
+  "caveats": [
+    "本文由音视频转写整理，个别口语作书面化处理，非逐字逐句",
+    "小标题为整理者所拟",
+    "片头约 1 分钟未录入"
+  ],
+  "reader_notes": [
+    "原始视频：X @example，2026-11-05 发布，作者自配中英双语字幕",
+    "本文为结构重整，非逐字逐句；引语书面化，小标题为整理者所拟",
+    "更详细的取舍记录与整理过程见随文 Markdown 存档"
+  ],
+  "process_appendix": [
+    "## 整理过程与回溯（存档用，不进入公众号正文）",
+    "",
+    "- S0-A：只读探测 + 检索，产出 feasibility.json（≥2 条候选）。",
+    "- S0-B：人拍板口径、主题、交付形态，写入 decisions。",
+    "- S3：四张配图由 HTML/CSS 版式渲染，逐张看图复核。",
+    "- S5：check_themes.py + validate_article.py + ci_check.py 全部通过。"
+  ],
+  "cover_carries_title": true
+}

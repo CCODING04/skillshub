@@ -1,0 +1,8 @@
+{
+  "figures": [
+    {"html": "cover.html",      "out": "fig1.png", "width": 1080, "height": 460},
+    {"html": "comparison.html", "out": "fig2.png", "width": 1080, "height": 620},
+    {"html": "checklist.html",  "out": "fig3.png", "width": 1080, "height": 600},
+    {"html": "roadmap.html",    "out": "fig4.png", "width": 1080, "height": 660}
+  ]
+}

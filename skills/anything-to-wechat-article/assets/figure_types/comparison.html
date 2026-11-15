@@ -1,0 +1,47 @@
+<!doctype html>
+<!-- 范式示例 | 1080x620 双栏对比：左灰右绿，中间 VS；注意第 4 步不要溢出容器 | 固定画布、全内联样式、无外链、中文用系统字体栈 --><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}html,body{margin:0;padding:0;width:1080px;height:620px;overflow:hidden}
+body{background:#FBFAF7;font-family:"Microsoft YaHei","PingFang SC",sans-serif;color:#20344F;padding:40px 60px}
+.kicker{font-size:15px;letter-spacing:2px;color:#E27145;font-weight:700}
+h2{margin:12px 0 20px;font-size:35px;letter-spacing:.5px}
+.cols{display:flex;gap:24px;position:relative}
+.col{flex:1;border-radius:18px;padding:22px 26px 18px;height:352px}
+.left{background:#F1F0ED;border:1px solid #E4E1DB}
+.right{background:#EAF3F0;border:1px solid #CFE5DE}
+.head{font-size:24px;font-weight:800;margin-bottom:6px}
+.cap{font-size:15px;color:#8A94A0;margin-bottom:16px}
+.step{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.85);border-radius:11px;padding:10px 14px;margin-bottom:8px;font-size:17px}
+.dot{width:26px;height:26px;border-radius:50%;flex:none;text-align:center;line-height:26px;font-size:14px;color:#fff;background:#AEB4BC}
+.right .dot{background:#2E7D6B}
+.arrow{text-align:center;color:#B7BDC5;font-size:13px;margin:-6px 0 2px}
+.vs{position:absolute;left:50%;top:118px;transform:translateX(-50%);width:44px;height:44px;border-radius:50%;background:#20344F;color:#fff;font-size:14px;font-weight:800;text-align:center;line-height:44px;z-index:2;box-shadow:0 6px 16px rgba(32,52,79,.2)}
+.concl{margin-top:20px;font-size:18px;color:#20344F;border-left:5px solid #E27145;padding-left:16px;line-height:1.7}
+.concl b{color:#E27145}
+</style></head><body>
+<div class="kicker">两种交互隐喻 · 03</div>
+<h2>服务窗口，还是工作台？</h2>
+<div class="cols">
+  <div class="col left">
+    <div class="head">服务窗口</div><div class="cap">交出请求，等一个成品</div>
+    <div class="step"><span class="dot">1</span>说一句需求</div>
+    <div class="arrow">↓</div>
+    <div class="step"><span class="dot">2</span>黑箱里完成</div>
+    <div class="arrow">↓</div>
+    <div class="step"><span class="dot">3</span>收到新版本</div>
+    <div class="arrow">↓</div>
+    <div class="step"><span class="dot">4</span>接受 / 拒绝 / 再解释一次</div>
+  </div>
+  <div class="vs">VS</div>
+  <div class="col right">
+    <div class="head">工作台</div><div class="cap">看得见、改得动、能随时接手</div>
+    <div class="step"><span class="dot">1</span>先看见它打算改什么</div>
+    <div class="arrow">↓</div>
+    <div class="step"><span class="dot">2</span>执行前介入计划</div>
+    <div class="arrow">↓</div>
+    <div class="step"><span class="dot">3</span>只改其中一小处</div>
+    <div class="arrow">↓</div>
+    <div class="step"><span class="dot">4</span>实时预览，方向拿回来</div>
+  </div>
+</div>
+<div class="concl">差别不只是多了几个按钮，而是 <b>「我可以接触我正在改变的东西」</b>。<br>好的工具拿掉的是阻碍，不是顺便拿掉人形成判断的过程。</div>
+</body></html>

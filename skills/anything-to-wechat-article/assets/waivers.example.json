@@ -1,0 +1,11 @@
+[
+  {
+    "rule_id": "C01",
+    "reason": "示例：本次为 X 长文而非演讲，作者背景非必需；由人确认后填写",
+    "scope": "once",
+    "approved_by": "<必须由人填写，模型不得代填>",
+    "approved_at": "2026-11-13",
+    "expires": "2026-11-20",
+    "linked_conflict_report": "conflict-report.json"
+  }
+]
