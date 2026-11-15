@@ -75,7 +75,8 @@
     "takeaway_item": "<div style=\"display:flex;align-items:flex-start;gap:10px;margin:0 0 12px;\"><span style=\"display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:{primary};color:#fff;font-size:11px;font-weight:700;border-radius:50%;flex-shrink:0;margin-top:2px;\">{{n}}</span><p style=\"font-size:14px;color:{body};margin:0;line-height:1.9;flex:1;\">{{text}}</p></div>",
     "closing": "<blockquote style=\"margin:24px 0 28px;padding:16px 18px;background:#FFFFFF;border:1px dashed {border_accent};border-radius:{radius};text-align:center;font-size:15px;line-height:1.7;color:{primary};font-weight:700;\">{{text}}</blockquote>",
     "source": "<div style=\"margin:28px 0 0;\"><p style=\"margin:0 0 12px;font-size:15px;font-weight:900;color:{ink};\"><span style=\"background:{accent};padding:0 4px;\">{{heading}}</span></p><div style=\"{{source_style}}\">{{items}}</div></div>",
-    "figure": "<div style=\"margin:8px 0 8px;background:#FFFFFF;border-radius:{radius_sm};padding:6px;border:1px solid {border};box-shadow:0 4px 12px -2px rgba(0,0,0,0.08);\">{{img}}</div><p style=\"{{caption_style}}\">{{caption}}</p>",
+    "figure": "<div style=\"margin:8px 0 8px;background:#FFFFFF;border-radius:{radius_sm};padding:6px;border:1px solid {border};box-shadow:0 4px 12px -2px rgba(0,0,0,0.08);\">{{img}}</div>",
+    "figure_caption": "<p style=\"{{caption_style}}\">{{caption}}</p>",
     "table": "<div style=\"margin:0 0 24px;overflow-x:auto;\"><table style=\"width:100%;border-collapse:collapse;font-size:13px;\"><tr>{{head}}</tr>{{rows}}</table></div>",
     "code": "<div style=\"{code_frame}\"><div style=\"{code_header}\">{{dots}}<span style=\"{code_label}\">{{lang}}</span></div><div style=\"{code_body}\">{{lines}}</div></div>"
   }

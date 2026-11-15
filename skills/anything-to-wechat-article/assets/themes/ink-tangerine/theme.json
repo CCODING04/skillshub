@@ -74,7 +74,8 @@
     "takeaway_item": "<div style=\"margin:0 0 16px;padding:14px 18px;background:{surface};border-radius:{radius};font-size:15px;line-height:1.8;\"><strong style=\"color:{accent};\">{{n}}</strong>　{{text}}</div>",
     "closing": "<blockquote style=\"margin:24px 0 30px;padding:18px;background:{primary};color:#FFFFFF;font-size:17px;line-height:1.9;border-radius:{radius};\">{{text}}</blockquote>",
     "source": "<div style=\"{{source_style}}\"><strong style=\"{{source_heading_style}}\">{{heading}}</strong><br>{{items}}</div>",
-    "figure": "<div style=\"margin:26px 0 8px;padding:0;\">{{img}}</div><p style=\"{{caption_style}}\">{{caption}}</p>",
+    "figure": "<div style=\"margin:26px 0 8px;padding:0;\">{{img}}</div>",
+    "figure_caption": "<p style=\"{{caption_style}}\">{{caption}}</p>",
     "table": "<div style=\"margin:0 0 24px;overflow-x:auto;\"><table style=\"width:100%;border-collapse:collapse;font-size:13px;\"><tr>{{head}}</tr>{{rows}}</table></div>",
     "code": "<div style=\"{code_frame}\"><div style=\"{code_header}\">{{dots}}<span style=\"{code_label}\">{{lang}}</span></div><div style=\"{code_body}\">{{lines}}</div></div>"
   }

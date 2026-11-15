@@ -3,7 +3,7 @@
 > 本文件由 `scripts/render_rules_doc.py` 从 `assets/rule-registry.json` 生成，
 > 不要手改。改规则请改注册表或代码，然后重跑生成脚本；`ci_check.py` 会比对两者是否一致。
 
-共 31 条。规则分五层，层级决定它能不能被豁免：
+共 32 条。规则分五层，层级决定它能不能被豁免：
 
 - **L0** 平台事实（微信编辑器行为，永不豁免）
 - **L1** 结构契约（成稿形态，可豁免但须人签字）
@@ -44,6 +44,7 @@
 | S23 | L1 | 图注不复述它前面的小标题 | 图注换个说法：写出这张图在说什么，命名交给它上面的小标题 | `validate_article.py`（CI 门禁 error 级，`--strict` 下 warning 也阻塞） |
 | S24 | L1 | 区块不超过两处且不嵌套 | 区块最多两处且不能套叠：只把确实需要分开的一组内容收进框 | `validate_article.py`（CI 门禁 error 级，`--strict` 下 warning 也阻塞） |
 | S25 | L1 | Markdown 归档包含全部图注 | 检查 build_article.py 的 Markdown 分支是否处理了这个块类型（aside 必须递归） | `validate_article.py`（CI 门禁 error 级，`--strict` 下 warning 也阻塞） |
+| S26 | L1 | 图注在图片下方、区块之外 | 把图注移出区块容器，紧跟图片之后；框里只放图本身 | `validate_article.py`（CI 门禁 error 级，`--strict` 下 warning 也阻塞） |
 
 ## 待复审
 

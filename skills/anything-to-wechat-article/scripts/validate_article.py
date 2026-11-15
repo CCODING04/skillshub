@@ -88,12 +88,33 @@ def component_inline_stats(h):
     return styled, total
 
 
+ASIDE_SPAN = re.compile(r"<!--\s*aside:start\s*-->[\s\S]*?<!--\s*aside:end\s*-->", re.I)
+
+
 def caption_stats(h):
     # theme-driven renderer wraps images in <div>, older renderer in <p>: accept both.
+    # 区块里的图，图注在框外（S26），所以中间允许跨过一层 </div>。
+    flat = re.sub(r"<!--\s*aside:(?:start|end)\s*-->", "", h, flags=re.I)
     pairs = re.findall(
-        r"<(?:p|div)[^>]*>\s*<img[^>]*>\s*</(?:p|div)>\s*<p[^>]*>([\s\S]*?)</p>", h, re.I)
+        r"<(?:p|div)[^>]*>\s*<img[^>]*>\s*</(?:p|div)>(?:\s*</div>)?\s*<p[^>]*>([\s\S]*?)</p>",
+        flat, re.I)
     good = [p for p in pairs if re.search(r"图|封面|示意|图注", re.sub(r"<[^>]+>", "", p))]
     return len(good), len(pairs)
+
+
+def captions_inside_asides(h):
+    """区块（带边框的容器）里不该出现图注。
+
+    图注是给读者读图的辅助，和正文同属一层；落进异色框里既比正文对比度低，
+    也和全篇其它图注不是一种东西。框里只放图本身，图注紧贴在框外。
+    """
+    out = []
+    for span in ASIDE_SPAN.findall(h):
+        for p in re.findall(r"<p\b[^>]*>([\s\S]*?)</p>", span, re.I):
+            text = re.sub(r"<[^>]+>", "", p).strip()
+            if re.match(r"^(图|封面)\s*\d*\s*｜", text):
+                out.append(text[:40])
+    return out
 
 
 CAPTION_P = re.compile(r"<p\b[^>]*text-align\s*:\s*center[^>]*>[\s\S]*?</p>", re.I)
@@ -157,6 +178,7 @@ def run_validation(html_path, *, expect_figures=0, strict=False, md_path=None,
     figure_gaps = figure_gap_stats(h)
     asides = count(r"<!--\s*aside:start\s*-->")
     nested_asides = count(r"<!--\s*aside:start\s*-->[\s\S]*?<!--\s*aside:start\s*-->")
+    buried_captions = captions_inside_asides(h)
     consecutive_br = count(r"<br\s*/?>\s*<br\s*/?>")
 
     text = visible_text(h)
@@ -267,6 +289,9 @@ def run_validation(html_path, *, expect_figures=0, strict=False, md_path=None,
     add("S24", "error", asides <= cfg["max_asides"] and not nested_asides,
         f"区块（aside）全篇 ≤ {cfg['max_asides']} 处且不嵌套：区块用来分开一组内容，不能变成整节的外框",
         {"count": asides, "nested": nested_asides})
+    add("S26", "error", not buried_captions,
+        "图注留在图片下方、区块之外：框里只放图本身，图注与全篇其它图注同一层",
+        {"captions_in_aside": buried_captions})
 
     # S25: Markdown 归档必须带上每张图。aside 当初就被导出器整块跳过，图与图注
     # 都消失，而 HTML 侧一切正常——只看成稿看不出来，必须比对两条出口。

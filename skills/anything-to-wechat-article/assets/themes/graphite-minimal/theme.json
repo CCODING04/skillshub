@@ -74,7 +74,8 @@
     "takeaway_item": "<div style=\"display:flex;align-items:flex-start;gap:12px;padding:14px 0;border-bottom:1px solid {border};\"><span style=\"display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:{surface};color:{ink};font-size:11px;font-weight:700;flex-shrink:0;margin-top:2px;\">{{n}}</span><p style=\"margin:0;font-size:14px;color:{body};line-height:1.8;flex:1;\">{{text}}</p></div>",
     "closing": "<blockquote style=\"margin:30px 0 32px;padding:10px 0 10px 24px;border-left:3px solid {primary};font-size:16px;font-weight:700;color:{ink};line-height:1.9;\">{{text}}</blockquote>",
     "source": "<div style=\"margin:36px 0 0;\"><p style=\"margin:0 0 10px;font-size:10px;color:{muted};font-weight:500;letter-spacing:3px;\">NOTES</p><p style=\"margin:0 0 12px;font-size:16px;font-weight:800;color:{ink};letter-spacing:0.5px;\">{{heading}}</p><div style=\"{{source_style}}\">{{items}}</div></div>",
-    "figure": "<div style=\"margin:8px 0 8px;border:1px solid {border};padding:4px;\">{{img}}</div><p style=\"{{caption_style}}\">{{caption}}</p>",
+    "figure": "<div style=\"margin:8px 0 8px;border:1px solid {border};padding:4px;\">{{img}}</div>",
+    "figure_caption": "<p style=\"{{caption_style}}\">{{caption}}</p>",
     "table": "<div style=\"margin:0 0 26px;overflow-x:auto;\"><table style=\"width:100%;border-collapse:collapse;font-size:13px;\"><tr>{{head}}</tr>{{rows}}</table></div>",
     "code": "<div style=\"{code_frame}\"><div style=\"{code_header}\">{{dots}}<span style=\"{code_label}\">{{lang}}</span></div><div style=\"{code_body}\">{{lines}}</div></div>"
   }

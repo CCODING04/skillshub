@@ -169,19 +169,23 @@ class Renderer:
             body.append("<tr>" + "".join('<td style="' + style + '">' + self.rich(c) + "</td>" for c in row) + "</tr>")
         return fill(self.t.part("table"), head=head, rows="".join(body))
 
-    def figure(self, fig, compact=False):
+    def figure_parts(self, fig, compact=False):
+        """返回 (图片段, 图注段)。两段分开，图注才能留在区块外（S26）。"""
         b64 = self.b64.get(fig["id"])
         if not b64:
-            return ""
+            return "", ""
         cap = fig.get("caption", "")
         img = ('<img src="data:image/png;base64,' + b64 + '" alt="' + attr(cap)
                + '" style="width:100%;height:auto;display:block;border-radius:' + self.t.tokens["radius"] + ';">')
-        part = self.t.part("figure")
-        cap_style = self.t.style("caption")
-        if compact:  # 放进 aside 区块时收紧留白：区块自己负责边界
-            part = part.replace("margin:26px 0 8px", "margin:4px 0 2px")
-            cap_style = re.sub(r"margin:0 0 [0-9]+px", "margin:0 0 2px", cap_style)
-        return fill(part, img=img, caption=esc(cap), caption_style=cap_style)
+        box = self.t.part("figure")
+        if compact:  # 收进区块时去掉图的上下留白，边界交给区块自己
+            box = re.sub(r"margin:\d+px 0 \d+px;", "margin:0;", box)
+        caption = fill(self.t.part("figure_caption"), caption=esc(cap),
+                       caption_style=self.t.style("caption"))
+        return fill(box, img=img), caption
+
+    def figure(self, fig, compact=False):
+        return "".join(self.figure_parts(fig, compact))
 
     def list_block(self, b):
         """编号列表：编号单独占一列（宽度 = 主题的悬挂缩进），末条补足段后间距。"""
@@ -205,14 +209,19 @@ class Renderer:
 
         只用一种槽位（styles.aside），全篇最多两处（S24 校验）。容器带注释标记，
         本地 lint 靠标记定位，粘进微信后注释会被丢弃、不影响样式。
+
+        图注留在框外（S26）：图注是给读者的读图辅助，和正文同属一层，落进
+        异色框里既降对比度，也和全篇其它图注不一致。框里只放图本身。
         """
-        inner = []
+        inner, tails = [], []
         for b in block.get("blocks", []):
             kind = b.get("type", "p")
             if kind == "figure":
                 for f in self.figs:
                     if f["id"] == b.get("id"):
-                        inner.append(self.figure(f, compact=True))
+                        img, cap = self.figure_parts(f, compact=True)
+                        inner.append(img)
+                        tails.append(cap)
             elif kind == "p":
                 inner.append(self.para(b.get("text", "")))
             elif kind == "list":
@@ -220,8 +229,13 @@ class Renderer:
         title = block.get("title", "")
         head = ('<p style="' + self.t.style("aside_title") + '">' + esc(title) + "</p>"
                 ) if title else ""
-        return ('<!-- aside:start --><div style="' + self.t.style("aside") + '">'
-                + head + "".join(inner) + "</div><!-- aside:end -->")
+        box_style = self.t.style("aside")
+        if tails:
+            # 图注紧跟着框，是框的一部分：衔接处不留尾距，间距交给图注的下边距，
+            # 否则框与图注之间会隔出 26px，看着像两段不相干的东西。
+            box_style = re.sub(r"margin:(\S+ 0) \S+;", r"margin:\1 0;", box_style, count=1)
+        return ('<!-- aside:start --><div style="' + box_style + '">'
+                + head + "".join(inner) + "</div><!-- aside:end -->" + "".join(tails))
 
     def takeaways(self, ir):
         items = ir["takeaways"]
@@ -428,7 +442,8 @@ def build_md(ir, fig_files):
                 fid = b.get("id")
                 if fid in fig_files and fid in fig_by_id:
                     cap = fig_by_id[fid].get("caption", "图示")
-                    out += [pad + "![" + cap + "](" + fig_files[fid] + ")", pad + cap, ""]
+                    # 图注另起一段：紧跟下一行会被当成引用块的惰性续行，图注又回到框里。
+                    out += [pad + "![" + cap + "](" + fig_files[fid] + ")", "", cap, ""]
             elif kind == "aside":
                 if b.get("title"):
                     out += [pad + "**" + b["title"] + "**", ""]
@@ -442,7 +457,8 @@ def build_md(ir, fig_files):
         L.append("")
     for f in ir.get("figures", []):
         if f.get("position") == "top" and f["id"] in fig_files:
-            L += ["![" + f.get("caption", "图示") + "](" + fig_files[f["id"]] + ")", ""]
+            L += ["![" + f.get("caption", "图示") + "](" + fig_files[f["id"]] + ")",
+                  "", f.get("caption", ""), ""]
     lead_lines = [(x.get("text", "") if isinstance(x, dict) else x)
                   for x in ir.get("lead", [])]
     L += lead_lines + [""]
@@ -460,7 +476,7 @@ def build_md(ir, fig_files):
         for f in ir.get("figures", []):
             if f.get("position") == "after_section:" + str(sec.get("no", "")) and f["id"] in fig_files:
                 L += ["![" + f.get("caption", "图示") + "](" + fig_files[f["id"]] + ")",
-                      f.get("caption", ""), ""]
+                      "", f.get("caption", ""), ""]
     if ir.get("takeaways"):
         L += ["## " + ir.get("takeaways_title", "如果只带走三件事"), ""]
         L += [str(i) + ". " + t for i, t in enumerate(ir["takeaways"], 1)] + [""]

@@ -19,7 +19,7 @@ REQUIRED_CODE = ["bg", "text", "keyword", "comment", "border", "accent", "label"
 REQUIRED_CODE_STYLES = ["frame_style", "header_style", "label_style", "body_style",
                         "line_style", "comment_style", "keyword_style"]
 REQUIRED_HTML = ["head", "takeaways_head", "takeaway_item", "closing", "source",
-                 "figure", "table", "code"]
+                 "figure", "figure_caption", "table", "code"]
 
 
 def luminance(color):

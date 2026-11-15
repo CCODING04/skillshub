@@ -75,7 +75,8 @@
     "takeaway_item": "<div style=\"display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid {border};\"><span style=\"display:inline-block;flex-shrink:0;margin-top:1px;padding:3px 8px;background:{surface};border:1px solid {border};font-size:10px;font-weight:700;color:{accent};letter-spacing:1px;\">STEP {{n}}</span><p style=\"margin:0;font-size:14px;color:{body};line-height:1.8;flex:1;\">{{text}}</p></div>",
     "closing": "<blockquote style=\"margin:26px 0 30px;padding:4px;background:{primary};border-radius:{radius};\"><div style=\"border:1px solid #FDFDF8;padding:20px;text-align:center;color:#FDFDF8;font-size:15px;line-height:1.9;\">{{text}}</div></blockquote>",
     "source": "<div style=\"margin:28px 0 0;\"><div style=\"display:inline-block;padding:6px 12px;background:{primary};color:#FDFDF8;font-size:12px;font-weight:700;letter-spacing:1px;\">{{heading}}</div><div style=\"border:1px solid {border};border-top:0;padding:12px 14px;font-size:12px;line-height:1.9;color:{muted_dark};\">{{items}}</div></div>",
-    "figure": "<div style=\"margin:8px 0 8px;border:1px solid {border};border-radius:{radius};overflow:hidden;\">{{img}}</div><p style=\"{{caption_style}}\">{{caption}}</p>",
+    "figure": "<div style=\"margin:8px 0 8px;border:1px solid {border};border-radius:{radius};overflow:hidden;\">{{img}}</div>",
+    "figure_caption": "<p style=\"{{caption_style}}\">{{caption}}</p>",
     "table": "<div style=\"margin:0 0 24px;overflow-x:auto;\"><table style=\"width:100%;border-collapse:collapse;font-size:13px;\"><tr>{{head}}</tr>{{rows}}</table></div>",
     "code": "<div style=\"{code_frame}\"><div style=\"{code_header}\">{{dots}}<span style=\"{code_label}\">{{lang}}</span></div><div style=\"{code_body}\">{{lines}}</div></div>"
   }

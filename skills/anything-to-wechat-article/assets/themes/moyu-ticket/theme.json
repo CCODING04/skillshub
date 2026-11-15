@@ -75,7 +75,8 @@
     "takeaway_item": "<div style=\"display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid {border_accent};\"><span style=\"display:inline-block;flex-shrink:0;margin-top:2px;background:{primary};color:#FFFFFF;font-size:12px;font-weight:700;padding:4px 8px;letter-spacing:1px;\">{{n}}</span><p style=\"margin:0;font-size:14px;color:{body};line-height:1.8;flex:1;\">{{text}}</p></div>",
     "closing": "<blockquote style=\"margin:26px 0 30px;padding:18px;background:{surface};border:2px solid {ink};box-shadow:5px 5px 0 {ink};text-align:center;font-size:16px;line-height:1.8;color:{ink};font-weight:700;\">{{text}}</blockquote>",
     "source": "<div style=\"margin:28px 0 0;\"><div style=\"display:flex;align-items:center;gap:8px;margin-bottom:10px;\"><span style=\"width:4px;height:14px;background:{primary};display:inline-block;\"></span><strong style=\"font-size:14px;color:{ink};letter-spacing:1px;\">{{heading}}</strong></div><div style=\"{{source_style}}\">{{items}}</div></div>",
-    "figure": "<div style=\"margin:8px 0 8px;background:{surface};border:1px solid {ink};padding:6px;\">{{img}}</div><p style=\"{{caption_style}}\">{{caption}}</p>",
+    "figure": "<div style=\"margin:8px 0 8px;background:{surface};border:1px solid {ink};padding:6px;\">{{img}}</div>",
+    "figure_caption": "<p style=\"{{caption_style}}\">{{caption}}</p>",
     "table": "<div style=\"margin:0 0 24px;overflow-x:auto;\"><table style=\"width:100%;border-collapse:collapse;font-size:13px;\"><tr>{{head}}</tr>{{rows}}</table></div>",
     "code": "<div style=\"{code_frame}\"><div style=\"{code_header}\">{{dots}}<span style=\"{code_label}\">{{lang}}</span></div><div style=\"{code_body}\">{{lines}}</div></div>"
   }

@@ -714,6 +714,32 @@
         "只出 HTML 不出 Markdown",
         "归档可以省图"
       ]
+    },
+    {
+      "id": "S26",
+      "level": "L1",
+      "title": "图注在图片下方、区块之外",
+      "fix": "把图注移出区块容器，紧跟图片之后；框里只放图本身",
+      "source": {
+        "type": "user_feedback",
+        "evidence": "区块里的图注被收进异色框，与全篇其它图注不是一种东西",
+        "verified_at": "2026-11-15"
+      },
+      "scope": {
+        "source_kinds": [
+          "*"
+        ],
+        "targets": [
+          "wechat-html"
+        ]
+      },
+      "review_after_days": 180,
+      "waiver_allowed": true,
+      "provisional": false,
+      "conflict_keywords": [
+        "图注放进框里",
+        "图注当区块标题"
+      ]
     }
   ],
   "note": "主题由 assets/themes/ 统一管理（N1）；规则阈值不随主题变化。规则变更须跑 check_themes.py + ci_check.py 回归。"
