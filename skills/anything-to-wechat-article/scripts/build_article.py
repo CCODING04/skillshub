@@ -13,6 +13,7 @@ import base64
 import html
 import json
 import re
+import sys
 from pathlib import Path
 
 THEMES_DIR = "assets/themes"
@@ -408,6 +409,7 @@ def audit_block_kinds(ir):
 
 def build_md(ir, fig_files):
     fig_by_id = {f["id"]: f for f in ir.get("figures", [])}
+    emitted = set()          # 已写进 Markdown 的图：既防重复，也用来兜住遗漏
 
     def md_blocks(blocks, depth=0):
         """IR 块 → Markdown 行。
@@ -444,6 +446,7 @@ def build_md(ir, fig_files):
                     cap = fig_by_id[fid].get("caption", "图示")
                     # 图注另起一段：紧跟下一行会被当成引用块的惰性续行，图注又回到框里。
                     out += [pad + "![" + cap + "](" + fig_files[fid] + ")", "", cap, ""]
+                    emitted.add(fid)
             elif kind == "aside":
                 if b.get("title"):
                     out += [pad + "**" + b["title"] + "**", ""]
@@ -459,6 +462,7 @@ def build_md(ir, fig_files):
         if f.get("position") == "top" and f["id"] in fig_files:
             L += ["![" + f.get("caption", "图示") + "](" + fig_files[f["id"]] + ")",
                   "", f.get("caption", ""), ""]
+            emitted.add(f["id"])
     lead_lines = [(x.get("text", "") if isinstance(x, dict) else x)
                   for x in ir.get("lead", [])]
     L += lead_lines + [""]
@@ -477,6 +481,22 @@ def build_md(ir, fig_files):
             if f.get("position") == "after_section:" + str(sec.get("no", "")) and f["id"] in fig_files:
                 L += ["![" + f.get("caption", "图示") + "](" + fig_files[f["id"]] + ")",
                       "", f.get("caption", ""), ""]
+                emitted.add(f["id"])
+    # HTML 侧的图位置有五种：top / after_section:N / before_takeaways / 空 / 块内引用。
+    # Markdown 侧此前只认前两种，`before_takeaways` 与空位置的图会整块消失——
+    # 成稿里看得见、归档里搜不到，正是 S25 要拦的那种不一致。
+    for want in ("before_takeaways", "", None):
+        for f in ir.get("figures", []):
+            if f.get("position") == want and f["id"] in fig_files and f["id"] not in emitted:
+                L += ["![" + f.get("caption", "图示") + "](" + fig_files[f["id"]] + ")",
+                      "", f.get("caption", ""), ""]
+                emitted.add(f["id"])
+    for f in ir.get("figures", []):          # 兜底：位置写错也不许丢图
+        if f["id"] in fig_files and f["id"] not in emitted:
+            print("WARN 图的 position 不被识别，已补在文末：" + f["id"], file=sys.stderr)
+            L += ["![" + f.get("caption", "图示") + "](" + fig_files[f["id"]] + ")",
+                  "", f.get("caption", ""), ""]
+            emitted.add(f["id"])
     if ir.get("takeaways"):
         L += ["## " + ir.get("takeaways_title", "如果只带走三件事"), ""]
         L += [str(i) + ". " + t for i, t in enumerate(ir["takeaways"], 1)] + [""]
