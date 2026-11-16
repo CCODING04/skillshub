@@ -29,8 +29,9 @@ description: 把任意来源（X 推文与 X 长文、视频、网页、PDF、Wo
 | S1 采集 | 按适配器取文本 + 元数据 | 正文/转写 + 来源信息 |
 | S2 规范化 | 写成 IR | `content.json` |
 | S3 配图 | HTML/CSS 版式 → 2x PNG | `figures/*.png` |
-| S4 排版 | 选定主题渲染 | `wechat-article.html` + `article.md` |
-| S5 校验 | CI 门禁 + 首屏截图 | `valid=true` 的交付包 |
+| S4 排版 | 选定主题渲染，注入审核用图片查看器 | `wechat-article.html`（审核版）+ `article.md` |
+| S4b 导出 | 按需剥掉查看器外壳 | `<原名>-wechat.html`（上传微信版） |
+| S5 校验 | CI 门禁（自动剥离查看器后校验）+ 首屏截图 | `valid=true` 的交付包 |
 
 主链严格串行，上一步是下一步的输入。**S5 门禁不过、或出现 `NEEDS_DECISION`，不交付。**
 
@@ -119,6 +120,8 @@ description: 把任意来源（X 推文与 X 长文、视频、网页、PDF、Wo
 
 微信编辑器的平台事实（不可豁免，S01–S05 与此对应）：会过滤 `<style>` 与 class，所以样式只能内联；只保留白名单标签；外链资源会失效，图片要 base64 内嵌。细则见 [`layout-spec.md`](./references/layout-spec.md)。
 
+**审核用图片查看器（默认注入，硬约束）**：`build_article.py` 会在成稿里注入一段查看器（`assets/viewer.js`），让人在浏览器里单击图片全屏看、拖拽、缩放、再点退回——长图、信息图不放大根本看不清，所以它默认就在，不是可选项。但它**是工具外壳不是排版**：微信会剥掉 script，所以**用户要「上传微信的版本」时，用 `scripts/strip_viewer.py` 剥掉外壳**，产出 `<原名>-wechat.html`；不要手改 HTML。门禁校验的是剥离外壳后的内容，用户手写的 script 照样被 S03 拦下。不想要查看器用 `--no-viewer`。
+
 组件的可用槽位以主题为准：`paragraph / quote / card / aside / tip / list_item / h3 / caption / code / table / head`。新增组件先加槽位再写模板，避免出现只有某一篇才有的样式。
 
 **区块（aside）**：把一组内容（通常是一张图加一句说明）收进带边框的容器，和上下文分开；全篇最多两处、不嵌套（S24）。它承担「分组」这一件事，不承担强调。框里只放图本身，图注留在框外（S26）——图注是读图辅助，和正文同一层。
@@ -128,6 +131,12 @@ description: 把任意来源（X 推文与 X 长文、视频、网页、PDF、Wo
 ```bash
 python scripts/ci_check.py --html dist/wechat-article.html --md dist/article.md \
   --ir content.json --theme <S0-B 选定的主题> --out dist
+```
+
+门禁会**自动剥离审核用图片查看器外壳后再校验**（`report.viewer` 里有剥离记录），所以校验的是微信真正收到的排版。用户要上传微信的版本时：
+
+```bash
+python scripts/strip_viewer.py dist/wechat-article.html     # 产出 dist/wechat-article-wechat.html
 ```
 
 门禁内含三项判定，任一项不过即 `FAIL`：
@@ -165,7 +174,10 @@ python scripts/ci_check.py --html dist/wechat-article.html --md dist/article.md 
 | `scripts/resolve_python.py` | 判定本机解释器，必要时记住到 `~/.skillshub/python.json` |
 | `scripts/detect_options.py` | 检测环境／代理／模型／清晰度／后端 |
 | `scripts/render_figures.py` | HTML/CSS → 2x PNG；渲染前跑 F01，浏览器失败自动回退 |
-| `scripts/build_article.py` | IR → 全内联 HTML + Markdown |
+| `scripts/build_article.py` | IR → 全内联 HTML（默认注入审核用图片查看器）+ Markdown |
+| `scripts/strip_viewer.py` | 剥掉图片查看器外壳，产出可上传微信的 `<原名>-wechat.html` |
+| `scripts/viewer_util.py` | 查看器外壳的注入与剥离（单一实现，三处共用） |
+| `assets/viewer.js` | 审核用图片查看器：单击全屏、拖拽、缩放、再点退回 |
 | `scripts/derive_palette.py` | 主色 + 骨架 → palette、代码框六槽位、对比度 |
 | `scripts/validate_article.py` | S／C 级规则（结构 + 内容），支持 `--strict` / `--md` / `--ir` |
 | `scripts/check_themes.py` | 主题 schema、槽位、代码框六槽位、对比度校验 |
@@ -204,4 +216,5 @@ $PY scripts/render_figures.py --manifest figures/manifest.json
 $PY scripts/build_article.py --content content.json --figures-dir figures --theme ink-tangerine --out dist
 $PY scripts/ci_check.py --html dist/wechat-article.html --md dist/article.md \
   --ir content.json --theme ink-tangerine --out dist               # 门禁：不过不交付（内含主题与规则清单检查）
+$PY scripts/strip_viewer.py dist/wechat-article.html               # 需要上传微信时：剥掉图片查看器，产出 *-wechat.html
 ```

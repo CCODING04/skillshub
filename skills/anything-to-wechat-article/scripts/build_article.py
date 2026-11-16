@@ -16,6 +16,9 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import viewer_util  # noqa: E402  审核用图片查看器（工具外壳，上传微信前用 strip_viewer.py 剥掉）
+
 THEMES_DIR = "assets/themes"
 
 
@@ -528,6 +531,8 @@ def main():
     ap.add_argument("--figures-dir", default="figures", help="directory with the PNG files")
     ap.add_argument("--out", default="dist", help="output directory")
     ap.add_argument("--skill-root", default=str(Path(__file__).resolve().parent.parent))
+    ap.add_argument("--no-viewer", action="store_true",
+                    help="不注入审核用图片查看器（默认注入，便于浏览器点图放大审核）")
     args = ap.parse_args()
 
     root = Path(args.skill_root)
@@ -568,6 +573,16 @@ def main():
         return 2
 
     html_text = build_html(ir, theme, b64_map)
+
+    # 默认注入审核用图片查看器（工具外壳，不是排版内容）。
+    # 上传微信前用 scripts/strip_viewer.py 剥掉，别手改 HTML。
+    viewer_bytes = 0
+    if not args.no_viewer:
+        try:
+            html_text, viewer_bytes = viewer_util.inject(html_text)
+        except viewer_util.ViewerError as exc:
+            print("WARNING viewer not injected: %s" % exc, file=sys.stderr)
+
     (out / "wechat-article.html").write_text(html_text, encoding="utf-8")
     (out / "article.md").write_text(build_md(ir, fig_files), encoding="utf-8")
     print(json.dumps({
@@ -579,6 +594,9 @@ def main():
         "figures_embedded": len(b64_map),
         "standalone_pngs": str(img_dir),
         "unresolved_placeholders": html_text.count("{{"),
+        "image_viewer": ("injected (审核用；上传微信前跑 scripts/strip_viewer.py)"
+                         if viewer_bytes else "absent"),
+        "viewer_bytes": viewer_bytes,
     }, ensure_ascii=False, indent=2))
     return 0
 

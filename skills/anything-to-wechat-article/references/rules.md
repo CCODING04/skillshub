@@ -22,7 +22,7 @@
 | F01 | L1 | 图里写清主体，不用代词 | 图里写清主体：用姓名／团队名／产品名替换「她／他／他们」，图会被单独转发 | `render_figures.py`（渲染前拦截，不通过不出图） |
 | S01 | L0 | 样式全部内联在元素上 | 移除 <style> 标签，全部样式写成内联 style | `validate_article.py`（CI 门禁 error 级，`--strict` 下 warning 也阻塞） |
 | S02 | L0 | 样式只走 style 属性 | 移除 class，改用内联 style | `validate_article.py`（CI 门禁 error 级，`--strict` 下 warning 也阻塞） |
-| S03 | L0 | 只使用微信编辑器保留的标签 | 替换 section/figure/figcaption/script 等微信不保留的标签 | `validate_article.py`（CI 门禁 error 级，`--strict` 下 warning 也阻塞） |
+| S03 | L0 | 只使用微信编辑器保留的标签（审核用图片查看器外壳除外） | 替换 section/figure/figcaption/script 等微信不保留的标签（审核用图片查看器外壳除外：校验前已自动剥离；上传微信前用 strip_viewer.py 产出纯净版） | `validate_article.py`（CI 门禁 error 级，`--strict` 下 warning 也阻塞） |
 | S04 | L1 | 标签限于白名单 | 只使用白名单标签（div/p/img/strong/h1/br/blockquote/span 等） | `validate_article.py`（CI 门禁 error 级，`--strict` 下 warning 也阻塞） |
 | S05 | L0 | 资源全部内嵌 | 去掉外链 CSS/字体/JS，图片改 base64 内嵌 | `validate_article.py`（CI 门禁 error 级，`--strict` 下 warning 也阻塞） |
 | S06 | L1 | 组件级内联样式达到下限 | 用组件级内联样式，不要只给最外层容器一个 style | `validate_article.py`（CI 门禁 error 级，`--strict` 下 warning 也阻塞） |

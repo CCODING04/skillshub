@@ -52,7 +52,7 @@
     {
       "id": "S03",
       "level": "L0",
-      "title": "只使用微信编辑器保留的标签",
+      "title": "只使用微信编辑器保留的标签（审核用图片查看器外壳除外）",
       "source": {
         "type": "platform_fact",
         "evidence": "微信粘贴后塌陷或过滤",

@@ -14,6 +14,9 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import viewer_util  # noqa: E402  校验前剥离审核用查看器外壳
+
 FORBIDDEN_TAGS = ["section", "figure", "figcaption", "script", "iframe", "link"]
 ALLOWED_TAGS = {"html", "head", "meta", "title", "body", "div", "p", "img", "strong",
                 "h1", "h2", "h3", "br", "blockquote", "span", "table", "tr", "td", "hr"}
@@ -156,6 +159,26 @@ def run_validation(html_path, *, expect_figures=0, strict=False, md_path=None,
     if not path.exists():
         return {"error": "file not found", "path": str(path), "valid": False}
     h = path.read_text(encoding="utf-8")
+
+    # 校验前剥离「审核用图片查看器」外壳：那是工具层，不是排版内容，
+    # 微信编辑器粘贴时会剥掉 script，所以门禁校验的是剥离后剩下的东西
+    # ——也就是微信真正收到的排版。用户手写的 script 不在标记内，照样被 S03 拦。
+    viewer_info = {"stripped": False, "bytes": 0, "note": "no viewer block"}
+    try:
+        h_before = len(h.encode("utf-8"))
+        h, vbytes = viewer_util.strip(h)
+        if vbytes:
+            viewer_info = {
+                "stripped": True,
+                "bytes": vbytes,
+                "note": "审核用图片查看器已剥离后校验；上传微信前用 strip_viewer.py 产出纯净版",
+                "html_bytes_before": h_before,
+                "html_bytes_after": len(h.encode("utf-8")),
+            }
+    except viewer_util.ViewerError as exc:
+        viewer_info = {"stripped": False, "bytes": 0,
+                       "error": str(exc),
+                       "note": "查看器标记不完整，按含外壳校验（S03 会拦下）"}
     count = lambda pat: len(re.findall(pat, h, re.I | re.S))
 
     tags = [t.lower() for t in re.findall(r"<\s*([a-zA-Z][a-zA-Z0-9]*)", h)]
@@ -337,6 +360,7 @@ def run_validation(html_path, *, expect_figures=0, strict=False, md_path=None,
     report = {
         "valid": gate_ok, "strict": strict, "path": str(path.resolve()),
         "bytes": len(h.encode("utf-8")),
+        "viewer": viewer_info,
         "summary": {
             "error_failures": [r["id"] for r in errors],
             "warning_failures": [r["id"] for r in warnings],

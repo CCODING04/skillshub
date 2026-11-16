@@ -18,7 +18,7 @@ from check_rules import run_governance
 FIX = {
     "S01": "移除 <style> 标签，全部样式写成内联 style",
     "S02": "移除 class，改用内联 style",
-    "S03": "替换 section/figure/figcaption/script 等微信不保留的标签",
+    "S03": "替换 section/figure/figcaption/script 等微信不保留的标签（审核用图片查看器外壳除外：校验前已自动剥离；上传微信前用 strip_viewer.py 产出纯净版）",
     "S04": "只使用白名单标签（div/p/img/strong/h1/br/blockquote/span 等）",
     "S05": "去掉外链 CSS/字体/JS，图片改 base64 内嵌",
     "S06": "用组件级内联样式，不要只给最外层容器一个 style",
