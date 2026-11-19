@@ -23,9 +23,13 @@
 
 ## 效果示意
 
-![示例渲染首屏](assets/screenshots/example.png)
+**anything-to-wechat-article**：用仓库内的示例 IR 渲染，内容均为虚构演示数据；全内联样式 HTML + 自制中文信息图，无生图工具。
 
-> 用仓库内的示例 IR 渲染，内容均为虚构演示数据；全内联样式 HTML + 自制中文信息图，无生图工具。
+![公众号排版示例首屏](assets/screenshots/example.png)
+
+**pdf-to-html**：论文 PDF 转成的双语对照网页首屏——左侧可折叠两级目录，正文左右分栏（EN／中），顶栏含模式切换与阅读设置。
+
+![双语对照网页示例首屏](assets/screenshots/pdf-to-html.png)
 
 ## Skill 介绍
 
