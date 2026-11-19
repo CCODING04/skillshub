@@ -112,6 +112,62 @@ def _merge_listings(blocks):
 
 blocks = _merge_listings(blocks)
 
+def _merge_split_numbered_lists(blocks):
+    """Merge numbered lists that the parser split on blank lines / continuation paragraphs.
+
+    Paper pattern: '1. ... \\n\\n 2. ...' and sometimes an explanatory para between
+    items ('2. ... \\n\\n For example, ... \\n\\n 3. ...'). parse_blocks emits each
+    numbered item as its own list block and the explanation as a para, so each <ol>
+    restarts at 1. Merge them into ONE list block; continuation paras become extra
+    lines inside the preceding <li> (render_list treats non-numbered lines as
+    continuations). Translations are concatenated to keep ids aligned.
+    """
+    num = re.compile(r"^\d+\.\s")
+    out, i = [], 0
+    while i < len(blocks):
+        b = blocks[i]
+        if b["type"] == "list" and num.match(b["text"].strip()):
+            group = [(b, "item")]
+            j = i + 1
+            while j < len(blocks):
+                nxt = blocks[j]
+                if nxt["type"] == "list" and num.match(nxt["text"].strip()):
+                    group.append((nxt, "item"))
+                    j += 1
+                elif (nxt["type"] == "para" and group and
+                      j + 1 < len(blocks) and
+                      blocks[j + 1]["type"] == "list" and
+                      num.match(blocks[j + 1]["text"].strip())):
+                    # continuation para sandwiched between numbered items
+                    group.append((nxt, "cont"))
+                    j += 1
+                else:
+                    break
+            if len(group) > 1:
+                def join_text(key):
+                    parts = []
+                    for blk, kind in group:
+                        txt = (trans.get(blk["id"], "") if key == "zh" else blk["text"]).strip()
+                        if not txt:
+                            continue
+                        if kind == "cont":
+                            # append to the previous item as a continuation line
+                            if parts:
+                                parts[-1] += "\n" + txt
+                        else:
+                            parts.append(txt)
+                    return "\n".join(parts)
+                new_id = b["id"] + "-merged"
+                trans[new_id] = join_text("zh")
+                out.append({"id": new_id, "type": "list", "text": join_text("en")})
+                i = j
+                continue
+        out.append(b)
+        i += 1
+    return out
+
+blocks = _merge_split_numbered_lists(blocks)
+
 # ---- Hand-reconstructed tables where MinerU flattened multi-row cells ----
 # ⚠️ PAPER-SPECIFIC: TABLE_A1_ROWS / build_table_a1 是示例论文被压扁的表格重建案例。
 # 换论文时：用 scripts/inspect_pdf.py 渲染原 PDF 页图并提取 cells/rowspan，
@@ -229,6 +285,7 @@ def inline_md(text):
     # italic *x*
     t = re.sub(r"(?<!\*)\*([^\*]+?)\*(?!\*)", r"<em>\1</em>", t)
     # citation markers [1] / [44, 65, 64] -> clickable anchor with hover preview
+    # NOTE: do NOT sort the numbers — source citation order carries author intent.
     def cite_repl(m):
         nums = [x.strip() for x in m.group(1).split(",") if x.strip().isdigit()]
         if not nums:
@@ -242,19 +299,27 @@ def inline_md(text):
 
 
 def render_list(text):
-    """text lines are list items; detect ordered vs bullet."""
+    """text lines are list items; non-numbered lines continue the previous item."""
     lines = [l for l in text.split("\n") if l.strip()]
-    # determine ordered by first token
     ordered = bool(re.match(r"^\d+\.", lines[0].strip())) if lines else False
-    items = []
+    items, current = [], None
     for l in lines:
         st = l.strip()
-        st = re.sub(r"^(?:\d+\.|•|\*|-)\s*", "", st)
-        items.append("<li>%s</li>" % inline_md(st))
+        is_new = bool(re.match(r"^(?:\d+\.|•|\*|-)\s+", st))
+        if is_new:
+            if current is not None:
+                items.append(current)
+            current = re.sub(r"^(?:\d+\.|•|\*|-)\s*", "", st)
+        else:
+            # continuation of the previous item
+            if current is not None:
+                current += " " + st
+            else:
+                current = st
+    if current is not None:
+        items.append(current)
     tag = "ol" if ordered else "ul"
-    return "<%s>%s</%s>" % (tag, "".join(items), tag)
-
-
+    return "<%s>%s</%s>" % (tag, "".join("<li>%s</li>" % inline_md(x) for x in items), tag)
 def block_pair(b):
     """Return (en_html, zh_html, kind) for a block."""
     typ = b["type"]

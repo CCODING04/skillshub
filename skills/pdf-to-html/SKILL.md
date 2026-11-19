@@ -49,14 +49,14 @@ description: 把学术论文 PDF 转成"英中双语对照、保留图片表格�
 
 ## 门禁边界
 
-`validate.py` 覆盖 19 条坑中的 15 条（环境契约、转义/围栏、TOC 层级、表格 rowspan、引用、图片、caption、状态类、锚点偏移）；`browser_test.py` 另覆盖交互类（目录/引用/lightbox/字号/锚点偏移实测）。剩 2 条本质需人工判断：B5（旋转图肉眼确认方向）、B6（表格数量对不上时先看原页）——脚本会提示，但结论由人下。**不要因为门禁全绿就跳过这两条。**
+`validate.py` 覆盖 20 条坑中的 17 条（环境契约、转义/围栏、TOC 层级、表格 rowspan、引用、编号列表、图片、caption、状态类、锚点偏移）；`browser_test.py` 另覆盖交互类（目录/引用/lightbox/字号/锚点偏移实测）。剩 2 条本质需人工判断：B5（旋转图肉眼确认方向）、B6（表格数量对不上时先看原页）——脚本会提示，但结论由人下。**不要因为门禁全绿就跳过这两条。**
 
-自检基线：示例论文产物 `validate.py` 应 27/27 PASS，`browser_test.py` 应 9/9 PASS；模板 `assets/build_html_template.py` 的 HTML/CSS/JS 段与成品逐行一致。
+自检基线：示例论文产物 `validate.py` 应 29/29 PASS，`browser_test.py` 应 9/9 PASS；模板 `assets/build_html_template.py` 的 HTML/CSS/JS 段与成品逐行一致。
 
 ## 参考
 
-- `references/pitfalls.md` — 全部 19 条真实踩坑记录（症状/根因/约束/检测），**本 skill 的知识核心**
-- `scripts/validate.py` — 交付门禁（静态检查，27 项）
+- `references/pitfalls.md` — 全部 20 条真实踩坑记录（症状/根因/约束/检测），**本 skill 的知识核心**
+- `scripts/validate.py` — 交付门禁（静态检查，29 项）
 - `scripts/browser_test.py` — 浏览器交互门禁（Chrome/Edge headless，零生态依赖，9 项）
 - `scripts/inspect_pdf.py` — 通用 PDF 检查（页图 PNG + 表格 cells，PyMuPDF/poppler 自动降级）
 - `assets/build_html_template.py` — HTML 模板（含全部交互逻辑）

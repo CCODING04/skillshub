@@ -103,6 +103,42 @@ def check_html_structure(html):
     # 由 check_images 的 rotate-manifest 检查代替。
 
 
+# ---------- B6. 编号列表连续性 ----------
+def check_numbered_lists(md_text, html):
+    """Catch numbered lists split into separate <ol> (each restarting at 1.)."""
+    if not md_text:
+        return
+    # Source: groups of consecutive numbered lines 1. 2. 3. ... -> group sizes
+    src_groups = []
+    nums = [int(m.group(1)) for m in
+            (re.match(r"^(\d+)\.\s", l.strip()) for l in md_text.split("\n")) if m]
+    # split the flat number stream into ascending runs that start at 1
+    cur = []
+    for n in nums:
+        if n == 1:
+            if len(cur) >= 2:
+                src_groups.append(len(cur))
+            cur = [1]
+        elif cur and n == cur[-1] + 1:
+            cur.append(n)
+        else:
+            if len(cur) >= 2:
+                src_groups.append(len(cur))
+            cur = [n] if n == 1 else []
+    if len(cur) >= 2:
+        src_groups.append(len(cur))
+    # Rendered: each <ol> li count (both EN and ZH columns present)
+    ol_sizes = [len(re.findall(r"<li>", o)) for o in
+                re.findall(r"<ol>(.*?)</ol>", html, re.S)]
+    # Every source group size must appear among rendered ol sizes
+    missing = [g for g in src_groups if g not in ol_sizes]
+    record("B7-编号列表完整合并", not missing,
+           "原文组%s 渲染ol%s 缺失%s" % (src_groups, sorted(set(ol_sizes)), missing))
+    # No orphan single-item <ol> (the classic split symptom)
+    singles = sum(1 for s in ol_sizes if s == 1)
+    record("B7-无孤立单条编号列表", singles == 0, "%d 个" % singles)
+
+
 # ---------- C. 渲染/交互层 ----------
 def check_interaction(html):
     # C1/D4: 禁止 className 整体赋值（最重要，用户明确要求的规则）
@@ -174,13 +210,14 @@ def main():
     strict = "--strict" in sys.argv
     print("=== PDF→Bilingual HTML 门禁 ===\nworkdir:", WORKDIR)
     check_env_contract()
-    check_fullmd()
+    md_text = check_fullmd()
     html_path = find_html(WORKDIR)
     record("D-找到双语HTML", bool(html_path), html_path or "未找到")
     if html_path:
         html = open(html_path, encoding="utf-8").read()
         outdir = os.path.dirname(html_path)
         check_html_structure(html)
+        check_numbered_lists(md_text, html)
         check_interaction(html)
         check_quality(html, outdir)
     print()

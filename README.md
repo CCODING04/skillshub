@@ -38,7 +38,7 @@
 - **输入**：论文 PDF 或 arXiv 链接。
 - **输出**：自包含双语 HTML——左右分栏／上下对照／仅英／仅中四种模式，保留图片表格，带可折叠目录、引用悬浮预览、图片全屏缩放、字号滑块与中文字体切换。
 - **流程**：环境预检（自动检查项目 Python 与 MinerU key，缺失则创建/引导）→ MinerU 转换 → 分块翻译 → 对照原 PDF 校验并构建 HTML → 静态门禁 + 浏览器门禁。
-- **特点**：把 19 条真实踩坑固化为机器约束（27 项静态检查 + 9 项 Chrome headless 交互测试）；零厂商生态依赖，Python 3 + 任意浏览器即可运行。详见 [`SKILL.md`](skills/pdf-to-html/SKILL.md) 与 [`踩坑清单`](skills/pdf-to-html/references/pitfalls.md)。
+- **特点**：把 20 条真实踩坑固化为机器约束（29 项静态检查 + 9 项 Chrome headless 交互测试）；零厂商生态依赖，Python 3 + 任意浏览器即可运行。详见 [`SKILL.md`](skills/pdf-to-html/SKILL.md) 与 [`踩坑清单`](skills/pdf-to-html/references/pitfalls.md)。
 
 ![双语对照网页示例首屏](assets/screenshots/pdf-to-html.png)
 
