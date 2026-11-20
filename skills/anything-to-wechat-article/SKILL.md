@@ -82,7 +82,9 @@ description: 把任意来源（X 推文与 X 长文、视频、网页、PDF、Wo
 
 规则不是永恒真理。`assets/rule-registry.json` 给每条规则标注层级（L0 平台事实 / L1 结构契约 / L2 可计量启发式 / L3 口径意图 / L4 元规则）、来源、适用范围、核验日期与复审周期；来自单次反馈的规则标 `provisional`，每次 CI 提示复审，不自动升级为永久规则。
 
-`scripts/check_rules.py` 在门禁前检测冲突：scope 与本次来源不匹配、人的明确指令与规则相悖、平台事实过期、代码与注册表 id 漂移、同规则反复豁免、已验收范式回归、provisional 待复审。命中即把门禁置为 **`NEEDS_DECISION`**（既非 PASS 也非 FAIL），产出 `conflict-report.json`（证据／影响／A·B·C 候选动作／依据／推荐），**停下来交人裁决**。
+`scripts/check_rules.py` 在门禁前检测冲突：scope 与本次来源不匹配、人的明确指令与规则相悖、平台事实过期、代码与注册表 id 漂移、同规则反复豁免、已验收范式回归。命中即把门禁置为 **`NEEDS_DECISION`**（既非 PASS 也非 FAIL），产出 `conflict-report.json`（证据／影响／A·B·C 候选动作／依据／推荐），**停下来交人裁决**。
+
+**两个提示型机制，不阻塞交付**：`provisional: true` 的规则每次列进 `rule-review.json` 的复审清单，由人决定是否升级为永久规则（代码里没有 `provisional_review` 冲突信号，不要当成门禁）；范式回归基线 golden 按主题存于 `assets/goldens/<theme>.json`，只有该主题有 golden 时才比对 `paradigm_regression`，没有则跳过并在报告里写明，不伪造基线。
 
 豁免须写 `waivers.json` 且含 `approved_by`（人）与复审日；**L0 不可豁免**；`--ack-conflicts` 只能由人写。完整机制见 [`rule-governance.md`](./references/rule-governance.md)。
 
@@ -163,6 +165,7 @@ python scripts/strip_viewer.py dist/wechat-article.html     # 产出 dist/wechat
 |---|---|
 | `references/rules.md` | 规则清单（由注册表生成，含层级、要求、修复、执行位置） |
 | `assets/rule-registry.json` | 规则注册表，规则层的单一来源 |
+| `assets/goldens/<theme>.json` | 各主题已验收范式稿的通过规则清单（目前仅 `ink-tangerine`）；无对应文件时跳过范式回归比对 |
 | `references/rule-governance.md` | 规则分层、可固化边界、冲突信号、汇报与豁免机制 |
 | `references/layout-spec.md` | 微信编辑器的平台事实、标签白名单、组件槽位 |
 | `references/themes.md` | 六套主题、风格配方、色系映射、派生算法 |

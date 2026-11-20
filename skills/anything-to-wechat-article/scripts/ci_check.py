@@ -69,7 +69,7 @@ def main():
     ap.add_argument("--theme-confirmed-by", default="", help="human who approved the theme (Step 0)")
     ap.add_argument("--task-meta", default="", help="JSON describing this task (source_kind, explicit_instructions)")
     ap.add_argument("--waivers", default="", help="human-signed waivers.json")
-    ap.add_argument("--golden", default="", help="JSON with passed_rules of the accepted paradigm article")
+    ap.add_argument("--golden", default="", help="JSON with passed_rules of the accepted paradigm article; defaults to assets/goldens/<theme>.json")
     ap.add_argument("--ack-conflicts", default="", help="HUMAN-WRITTEN decision file; the model must not create it")
     ap.add_argument("--no-governance", action="store_true", help="skip rule governance (not recommended)")
     args = ap.parse_args()
@@ -129,12 +129,30 @@ def main():
         task_meta_path = str(out_dir / "task-meta.json")
         write_json(task_meta_path, auto)
 
+    # Golden: explicit --golden wins; otherwise pick the theme's accepted baseline.
+    # A theme without a golden is NOT an error — paradigm regression is skipped and
+    # reported, so an unverified theme never pretends to have a baseline.
+    golden_path = args.golden or ""
+    if not golden_path:
+        themed = skill_root / "assets" / "goldens" / f"{theme_id}.json"
+        if themed.exists():
+            golden_path = str(themed)
+    golden_status = {
+        "path": golden_path or None,
+        "source": "explicit" if args.golden else ("theme" if golden_path else "none"),
+        "theme": theme_id,
+        "paradigm_regression_checked": bool(golden_path),
+        "note": ("" if golden_path else
+                 f"No accepted paradigm for theme '{theme_id}'; "
+                 "paradigm_regression check skipped (not a failure)."),
+    }
+
     gov, review, gov_code = (None, None, 0)
     if not args.no_governance and registry.exists():
         gov, review, gov_code = run_governance(
             registry_path=str(registry), task_meta=task_meta_path or None,
             lint_report=report, waivers=args.waivers or None,
-            golden=args.golden or None, out_dir=str(out_dir))
+            golden=golden_path or None, out_dir=str(out_dir))
     if gov_code == 1:
         print("REGISTRY ERROR:", (gov or {}).get("details") or (gov or {}).get("error"), file=sys.stderr)
         return 3
@@ -161,6 +179,7 @@ def main():
         "acknowledged_by_human": bool(ack),
         "decision_owner": "human",
         "theme": {"id": theme_id, "confirmed_by": args.theme_confirmed_by or None},
+        "golden": golden_status,
     }
 
     if needs and not ack:

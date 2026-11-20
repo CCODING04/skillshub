@@ -193,6 +193,10 @@ def run_governance(*, registry_path, task_meta=None, lint_report=None,
         "stale_platform_facts": [c["rule_id"] for c in conflicts if c["type"] == "stale_fact"],
         "triggered_rules": [r["id"] for r in (lint or {}).get("rules", []) if not r.get("passed")],
         "paradigm_regression": [],
+        "golden_checked": bool(gold),
+        "golden_note": ("" if gold else
+                        "No accepted paradigm baseline for this theme; "
+                        "paradigm_regression check skipped (not a failure)."),
     }
 
     if gold and lint:

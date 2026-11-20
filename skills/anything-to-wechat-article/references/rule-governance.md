@@ -62,12 +62,16 @@
 | `stale_fact` | `source.type = platform_fact` 且 `verified_at` 超过 `review_after_days` | 汇报，建议重新实测 |
 | `rule_id_drift` | 代码里的规则 id 集合 ≠ 注册表 id 集合 | 阻塞；注册表与代码必须一致 |
 | `repeated_waiver` | 同一规则被豁免 ≥3 次 | 汇报：该规则可能其实是偏好，应降级/废止 |
-| `paradigm_regression` | 已验收的 golden 范式稿在新规则下不再通过 | 阻塞；先修规则再交付 |
-| `provisional_review` | 存在 `provisional: true` 的规则 | 每次 CI 列入复审清单（提示，不阻塞） |
+| `paradigm_regression` | 本次主题有 golden 范式稿，且其中通过的规则在新一轮失败 | 阻塞；先修规则再交付 |
 | `style_preset_mismatch` | 人选择的风格 ≠ 生成/校验时用的风格 | 置 `NEEDS_DECISION`，成稿与口径不一致 |
 | `style_pending_confirmation` | 用了非默认风格但无 `style_confirmed_by` | 写进 `rule-review.json` 提示（不阻塞）；风格属意图层，须由人确认 |
 
 检测不到「规则在语义上不合适」这种模糊情况；只能靠上述信号去逼近，误报由人裁定。
+
+**两个提示型机制（不阻塞，不进 `conflicts`）**：
+
+- `provisional` 复审：所有 `provisional: true` 的规则 id 每次 CI 写进 `rule-review.json` 的 `provisional_rules`，附一句"源自单次反馈，需第二次验证"。它由人读、由人决定是否升级；**不触发 `NEEDS_DECISION`，不阻塞交付**。代码里没有 `provisional_review` 这个冲突信号，不要按阻塞信号理解。
+- golden 范式回归：按主题选择 `assets/goldens/<theme>.json`（`--golden` 显式指定时优先）。只有存在对应 golden 时才比对 `paradigm_regression`；**某主题尚无 golden 时跳过该比对，并在 `rule-review.json` / `ci-report.json` 里写明"skipped (not a failure)"**，绝不伪造一个基线。新增主题不必补齐 golden 才能交付。
 
 ## 冲突处理流程
 
