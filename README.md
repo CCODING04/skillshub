@@ -1,6 +1,6 @@
 # skillshub
 
-可复用的 Agent Skill 集合。当前收录 **2 个 skill** · **v1**。
+可复用的 Agent Skill 集合。当前收录 **4 个 skill** · **v1**（其中 2 个为 README 外部引用）。
 
 ## 目录
 
@@ -8,6 +8,8 @@
 - [Skill 介绍](#skill-介绍)
   - [anything-to-wechat-article](#anything-to-wechat-article)
   - [pdf-to-html](#pdf-to-html)
+  - [lieflat-less-ai-tone](#lieflat-less-ai-tone)
+  - [diagram-design](#diagram-design)
 - [安装](#安装)
 - [快速开始](#快速开始)
   - [公众号排版](#公众号排版)
@@ -15,10 +17,12 @@
 
 ## 收录
 
-| Skill | 用途 | 目录 |
+| Skill | 用途 | 位置 / 来源 |
 |---|---|---|
 | `anything-to-wechat-article` | 把任意来源整理成微信公众号排版文章 | [`skills/anything-to-wechat-article/`](skills/anything-to-wechat-article/) |
 | `pdf-to-html` | 把论文 PDF 转成可全文阅读的英中双语对照网页 | [`skills/pdf-to-html/`](skills/pdf-to-html/) |
+| `lieflat-less-ai-tone` | 基于语料研究的去 AI 味检测与最小改写（外部引用） | [GitHub 仓库](https://github.com/larashero3-dotcom/lieflat-less-ai-tone) |
+| `diagram-design` | 生成单文件 HTML + SVG 的编辑式图表（外部引用） | [GitHub 仓库](https://github.com/cathrynlavery/diagram-design) |
 
 ## Skill 介绍
 
@@ -42,9 +46,42 @@
 
 ![双语对照网页示例首屏](assets/screenshots/pdf-to-html.png)
 
+### lieflat-less-ai-tone
+
+> 外部引用：本仓库不收录源文件，仅链接到 [larashero3-dotcom/lieflat-less-ai-tone](https://github.com/larashero3-dotcom/lieflat-less-ai-tone)。
+
+- **输入**：一篇中文成稿。
+- **输出**：先给出检测报告（指标、研究参照、原文例句、具体改法）；用户确认后再改写、复测并生成前后对比。
+- **流程**：脚本检测 + 语义候选判读 → 分层报告等待用户回复 → 最小改动改写 → 复测对比。
+- **特点**：基于两轮实测语料（1,169 篇、约 520 万汉字、100+ 指标、约 50 万次模型语义判断）；A/B/C/H/X/F 分级，C/H/X 级默认不改；“最小改动、信息守恒、不制造参差”防止过度改写。许可 CC BY-NC 4.0，商用需上游授权。
+
+![去 AI 味 Skill 研究概览](https://raw.githubusercontent.com/larashero3-dotcom/lieflat-less-ai-tone/main/assets/less-ai-tone-hero-zh.png)
+
+> 图片来自上游仓库 README。
+
+### diagram-design
+
+> 外部引用：本仓库不收录源文件，仅链接到 [cathrynlavery/diagram-design](https://github.com/cathrynlavery/diagram-design)。
+
+- **输入**：自然语言描述的图表需求，或 draw.io / Mermaid / Excalidraw / PlantUML 源文件。
+- **输出**：单个自包含 `.html`（内联 SVG），双击即可打开，也可导出 SVG / PNG。
+- **流程**：选图表类型 → 规划布局 → 生成编辑式 SVG 图表；可从网站 onboard 品牌色与字体。
+- **特点**：51 种图表类型；1px 细线、无阴影、4px 网格的编辑式设计系统；单文件、无构建、无 JS、无外链图片；支持导入重绘与品牌 onboarding。许可 MIT。
+
+![Diagram Design 演示：从提示到成图](https://raw.githubusercontent.com/cathrynlavery/diagram-design/main/docs/hero/demo.gif)
+
+> 图片来自上游仓库 README。
+
 ## 安装
 
 把所需 skill 的整个目录交给 Agent，让它自己读取 `SKILL.md` 完成安装与配置即可。
+
+外部引用的两个 skill 不在本仓库内，可用 Agent Skills 包管理器直接安装：
+
+```bash
+npx skills add larashero3-dotcom/lieflat-less-ai-tone
+npx skills add cathrynlavery/diagram-design
+```
 
 ## 快速开始
 
